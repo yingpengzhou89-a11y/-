@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 03:15:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/config.json` L85-88 -> L85-88 (`+2 -2`), L126-133 -> (Deleted) (`+0 -8`), L144-156 -> (Deleted) (`+0 -13`) (Update recruitment 10x position and remove unused arena coordinates)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L56 -> L56 (`+1 -1`), L69-76 -> L69-72 (`+0 -4`), L401-418 -> (Deleted) (`+0 -17`), L469-482 -> (Deleted) (`+0 -13`), L512-529 -> (Deleted) (`+0 -17`), L876-900 -> (Deleted) (`+0 -24`) (Update recruitment 10x default coordinate, delete unused arena coordinates, and remove logic for one-key battle, auto battle checkbox, sub-arena navigation, member customer service popup, and activity ranking popup)
+- `c:/Users/work/Desktop/daily_task/tasks/arena.py` L117-136 -> (Deleted) (`+0 -20`) (Remove local_keywords and main_keywords sub-arena navigation branching)
+
 ## [Unreleased] - 2026-06-21 03:07:00 (CST)
 
 ### Changed

@@ -53,7 +53,7 @@ DEFAULT_RECRUITMENT_CONFIG = {
     "free_single_keywords": ["免费"],
     "free_single_point": {"x": 512, "y": 654},
     "ten_recruit_keywords": ["招募十次", "十连", "10次"],
-    "ten_recruit_point": {"x": 847, "y": 654},
+    "ten_recruit_point": {"x": 766, "y": 650},
     "close_result_point": {"x": 513, "y": 634},
     "max_recruit_actions": 2
 }
@@ -66,14 +66,10 @@ DEFAULT_ARENA_CONFIG = {
     "formation_keywords": ["VS", "一键布阵", "助战"],
     "battle_keywords": ["挂起", "暂停"],
     "qualifier_home_keywords": ["竞技场赛季奖励", "挑战积分", "今日免费", "防守阵容"],
-    "local_arena_point": {"x": 205, "y": 385},
-    "qualifier_point": {"x": 342, "y": 398},
     "challenge_button_point": {"x": 1185, "y": 642},
     "formation_challenge_point": {"x": 1185, "y": 642},
     "close_challenge_list_point": {"x": 1142, "y": 82},
     "home_point": {"x": 324, "y": 39},
-    "one_key_battle_point": {"x": 635, "y": 606},
-    "auto_battle_point": {"x": 770, "y": 140},
     "first_free_challenge_point": {"x": 995, "y": 233},
     "continue_point": {"x": 640, "y": 650},
     "max_free_challenges": 5
@@ -398,23 +394,6 @@ class TaskRunner:
                 "risk": "low"
             }
 
-        if text_contains_any(page_text, ["进行10次战斗后可以一键战斗"]):
-            if not self.has_decision("勾选竞技场自动战斗"):
-                return {
-                    "intent": "勾选竞技场自动战斗",
-                    "action": "tap",
-                    "target": arena_config["auto_battle_point"],
-                    "confidence": 0.72,
-                    "risk": "low"
-                }
-
-            return {
-                "intent": "一键战斗未解锁，改用免费挑战",
-                "action": "tap",
-                "target": arena_config["first_free_challenge_point"],
-                "confidence": 0.72,
-                "risk": "low"
-            }
 
         if text_contains_any(page_text, ["进行3次战斗后方可跳过"]):
             return {
@@ -466,18 +445,6 @@ class TaskRunner:
                     "risk": "low"
                 }
 
-            if (
-                text_contains_any(page_text, ["今日次数：0/50", "今日次数:0/50"])
-                and text_contains_any(page_text, ["一键战斗", "键战斗"])
-                and not self.has_decision("尝试竞技场一键战斗")
-            ):
-                return {
-                    "intent": "尝试竞技场一键战斗",
-                    "action": "tap",
-                    "target": arena_config["one_key_battle_point"],
-                    "confidence": 0.76,
-                    "risk": "low"
-                }
 
             if free_challenges < max_free_challenges and text_contains_any(page_text, ["免费"]):
                 return {
@@ -509,23 +476,6 @@ class TaskRunner:
                 "risk": "low"
             }
 
-        if text_contains_any(page_text, arena_config.get("local_keywords") or []):
-            return {
-                "intent": "进入本服竞技场资格赛",
-                "action": "tap",
-                "target": arena_config["qualifier_point"],
-                "confidence": 0.78,
-                "risk": "low"
-            }
-
-        if text_contains_any(page_text, arena_config.get("main_keywords") or []):
-            return {
-                "intent": "进入本服竞技场",
-                "action": "tap",
-                "target": arena_config["local_arena_point"],
-                "confidence": 0.8,
-                "risk": "low"
-            }
 
         return None
 
@@ -873,30 +823,6 @@ class TaskRunner:
                 "risk": "low"
             }
 
-        if text_contains_any(page_text, ["超级会员专属客服", "今日不再提示"]):
-            return {
-                "intent": "关闭会员客服弹窗",
-                "action": "tap",
-                "target": {
-                    "x": 1204,
-                    "y": 159
-                },
-                "confidence": 0.9,
-                "risk": "low"
-            }
-
-
-        if text_contains_any(page_text, ["查看更多排名", "最强玩家"]):
-            return {
-                "intent": "关闭活动排行弹窗",
-                "action": "tap",
-                "target": {
-                    "x": 1218,
-                    "y": 108
-                },
-                "confidence": 0.86,
-                "risk": "low"
-            }
 
         if text_contains_any(page_text, ["进化东京"]):
             return {

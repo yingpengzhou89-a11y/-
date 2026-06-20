@@ -114,26 +114,6 @@ def run_task(runner, observation):
             "risk": "low"
         }
 
-    # 7. 二级选择入口
-    if text_contains_any(page_text, arena_config.get("local_keywords") or []):
-        runner.arena_no_action_retry_count = 0
-        return {
-            "intent": "进入本服竞技场资格赛",
-            "action": "tap",
-            "target": arena_config["qualifier_point"],
-            "confidence": 0.78,
-            "risk": "low"
-        }
-
-    if text_contains_any(page_text, arena_config.get("main_keywords") or []):
-        runner.arena_no_action_retry_count = 0
-        return {
-            "intent": "进入本服竞技场",
-            "action": "tap",
-            "target": arena_config["local_arena_point"],
-            "confidence": 0.8,
-            "risk": "low"
-        }
 
     # 8. 容错重试机制
     if runner.arena_no_action_retry_count < 3:

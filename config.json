@@ -83,8 +83,8 @@
             "10次"
         ],
         "ten_recruit_point": {
-            "x": 848,
-            "y": 655
+            "x": 766,
+            "y": 650
         },
         "close_result_point": {
             "x": 514,
@@ -122,14 +122,6 @@
             "今日免费",
             "防守阵容"
         ],
-        "local_arena_point": {
-            "x": 205,
-            "y": 385
-        },
-        "qualifier_point": {
-            "x": 342,
-            "y": 398
-        },
         "challenge_button_point": {
             "x": 1185,
             "y": 642
@@ -145,14 +137,6 @@
         "home_point": {
             "x": 324,
             "y": 39
-        },
-        "one_key_battle_point": {
-            "x": 635,
-            "y": 606
-        },
-        "auto_battle_point": {
-            "x": 770,
-            "y": 140
         },
         "first_free_challenge_point": {
             "x": 995,
