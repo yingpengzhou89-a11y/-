@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 03:07:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/tasks/recruitment.py` L10-23 -> (Deleted) (`+0 -14`) (Delete redundant confirm_point logic)
+- `c:/Users/work/Desktop/daily_task/config.json` L89-92 -> (Deleted) (`+0 -4`) (Remove confirm_point coordinates)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L57 -> (Deleted) (`+0 -1`) (Remove confirm_point from default recruitment config)
+
 ## [Unreleased] - 2026-06-21 02:49:00 (CST)
 
 ### Changed

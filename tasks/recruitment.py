@@ -7,19 +7,6 @@ def run_task(runner, observation):
     page_text = observation.get("page_text") or ""
     recruitment_config = merge_recruitment_config(runner.app_config)
 
-    # 1. 确认高级招募（通常在点十连后如果弹出确认框，或直接执行）
-    if (
-        text_contains_any(page_text, ["确认", "确定"])
-        and text_contains_any(page_text, recruitment_config.get("advanced_keywords") or [])
-        and not text_contains_any(page_text, runner.guardrails["forbidden_keywords"])
-    ):
-        return {
-            "intent": "确认高级招募",
-            "action": "tap",
-            "target": recruitment_config["confirm_point"],
-            "confidence": 0.7,
-            "risk": "low"
-        }
 
     # 2. 关闭招募结果页
     if text_contains_any(page_text, ["招募结果", "再次招募", "获得", "再抽1次", "再抽10次", "遣散", "稀有角色"]):

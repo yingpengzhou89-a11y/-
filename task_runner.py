@@ -54,7 +54,6 @@ DEFAULT_RECRUITMENT_CONFIG = {
     "free_single_point": {"x": 512, "y": 654},
     "ten_recruit_keywords": ["招募十次", "十连", "10次"],
     "ten_recruit_point": {"x": 847, "y": 654},
-    "confirm_point": {"x": 760, "y": 515},
     "close_result_point": {"x": 513, "y": 634},
     "max_recruit_actions": 2
 }
