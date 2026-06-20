@@ -1,0 +1,368 @@
+{
+    "adb_path": "C:\\Netease\\MuMu\\nx_main\\adb.exe",
+    "device_id": "127.0.0.1:7555",
+    "ocr_backend": "rapidocr",
+    "scan_mode": "fast_fullscreen",
+    "ocr_min_score": 0.5,
+    "task_page": {
+        "task_list_region": {
+            "x1": 315,
+            "y1": 225,
+            "x2": 1190,
+            "y2": 650
+        },
+        "row_height": 127,
+        "task_text_x": 520,
+        "button_region_x1": 950,
+        "claim_keywords": [
+            "领取",
+            "一键领取"
+        ],
+        "go_keywords": [
+            "前往"
+        ],
+        "daily_tab_keywords": [
+            "日常任务"
+        ],
+        "reward_popup_keywords": [
+            "恭喜获得",
+            "点击任意区域关闭"
+        ],
+        "daily_entry_point": null,
+        "active_chests": [
+            {
+                "x": 624,
+                "y": 144
+            },
+            {
+                "x": 800,
+                "y": 144
+            },
+            {
+                "x": 965,
+                "y": 144
+            },
+            {
+                "x": 1135,
+                "y": 144
+            }
+        ]
+    },
+    "recruitment": {
+        "page_keywords": [
+            "高级招募",
+            "普通招募",
+            "特定招募",
+            "跳过动画",
+            "招募十次"
+        ],
+        "advanced_keywords": [
+            "高级招募"
+        ],
+        "advanced_tab_point": {
+            "x": 168,
+            "y": 386
+        },
+        "skip_animation_keywords": [
+            "跳过动画"
+        ],
+        "skip_animation_point": {
+            "x": 1020,
+            "y": 642
+        },
+        "free_single_keywords": [
+            "免费"
+        ],
+        "free_single_point": {
+            "x": 512,
+            "y": 655
+        },
+        "ten_recruit_keywords": [
+            "招募十次",
+            "十连",
+            "10次"
+        ],
+        "ten_recruit_point": {
+            "x": 848,
+            "y": 655
+        },
+        "confirm_point": {
+            "x": 760,
+            "y": 515
+        },
+        "close_result_point": {
+            "x": 514,
+            "y": 633
+        },
+        "max_recruit_actions": 10
+    },
+    "arena": {
+        "main_keywords": [
+            "本服竞技场",
+            "跨服竞技场",
+            "巅峰竞技场"
+        ],
+        "local_keywords": [
+            "资格赛",
+            "排位赛"
+        ],
+        "challenge_list_keywords": [
+            "挑战列表",
+            "今日次数",
+            "自动战斗"
+        ],
+        "formation_keywords": [
+            "VS",
+            "一键布阵",
+            "助战"
+        ],
+        "battle_keywords": [
+            "挂起",
+            "暂停"
+        ],
+        "qualifier_home_keywords": [
+            "竞技场赛季奖励",
+            "挑战积分",
+            "今日免费",
+            "防守阵容"
+        ],
+        "local_arena_point": {
+            "x": 205,
+            "y": 385
+        },
+        "qualifier_point": {
+            "x": 342,
+            "y": 398
+        },
+        "challenge_button_point": {
+            "x": 1185,
+            "y": 642
+        },
+        "formation_challenge_point": {
+            "x": 1185,
+            "y": 642
+        },
+        "close_challenge_list_point": {
+            "x": 1142,
+            "y": 82
+        },
+        "home_point": {
+            "x": 324,
+            "y": 39
+        },
+        "one_key_battle_point": {
+            "x": 635,
+            "y": 606
+        },
+        "auto_battle_point": {
+            "x": 770,
+            "y": 140
+        },
+        "first_free_challenge_point": {
+            "x": 995,
+            "y": 233
+        },
+        "continue_point": {
+            "x": 640,
+            "y": 650
+        },
+        "max_free_challenges": 5
+    },
+    "warehouse": {
+        "page_keywords": [
+            "资源仓库"
+        ],
+        "sub_keywords": [
+            "快速采集",
+            "当前存储",
+            "存储时间",
+            "奖励预览",
+            "免费次数"
+        ],
+        "collect_point": {
+            "x": 700,
+            "y": 575
+        },
+        "close_point": {
+            "x": 1106,
+            "y": 137
+        },
+        "max_collect_actions": 4
+    },
+    "guild_donation": {
+        "donation_entry_point": {
+            "x": 382,
+            "y": 623
+        },
+        "gold_donation_point": {
+            "x": 587,
+            "y": 595
+        },
+        "close_point": {
+            "x": 1217,
+            "y": 82
+        },
+        "back_point": {
+            "x": 323,
+            "y": 36
+        }
+    },
+    "shop_refresh": {
+        "refresh_point": {
+            "x": 380,
+            "y": 597
+        },
+        "back_point": {
+            "x": 323,
+            "y": 41
+        },
+        "max_refresh_actions": 2
+    },
+    "memory_house": {
+        "sweep_point": {
+            "x": 1093,
+            "y": 677
+        },
+        "back_point": {
+            "x": 324,
+            "y": 39
+        },
+        "max_sweep_actions": 1
+    },
+    "daily_dungeon": {
+        "sweep_point": {
+            "x": 745,
+            "y": 666
+        },
+        "close_point": {
+            "x": 400,
+            "y": 250
+        },
+        "back_point": {
+            "x": 324,
+            "y": 37
+        },
+        "max_sweep_actions": 2
+    },
+    "kakuja_hunt": {
+        "challenge_point": {
+            "x": 1175,
+            "y": 640
+        },
+        "skip_point": {
+            "x": 336,
+            "y": 40
+        },
+        "confirm_point": {
+            "x": 965,
+            "y": 650
+        },
+        "back_point": {
+            "x": 324,
+            "y": 39
+        },
+        "max_actions": 1
+    },
+    "guardrails": {
+        "max_steps_per_task": 50,
+        "max_run_seconds": 900,
+        "min_confidence": 0.65,
+        "max_unchanged_screens": 3,
+        "max_target_search_scrolls": 6,
+        "screen_hash_size": 32,
+        "forbidden_keywords": [
+            "充值",
+            "购买",
+            "钻石",
+            "付费",
+            "商城",
+            "确认购买",
+            "代币",
+            "点券",
+            "不足"
+        ],
+        "allowed_actions": [
+            "tap",
+            "wait",
+            "swipe",
+            "claim",
+            "stop"
+        ]
+    },
+    "known_tasks": [
+        {
+            "name": "日常登录1次",
+            "keywords": [
+                "登录"
+            ],
+            "notes": "上线即自动完成，可直接在日常任务大厅领取。"
+        },
+        {
+            "name": "接取3次委托任务",
+            "keywords": [
+                "委托"
+            ],
+            "notes": "奖励随机，建议人为去做。脚本仅在日常页检测到完成时一键领奖，未完成时自动安全挂起。"
+        },
+        {
+            "name": "赠送好友友情点",
+            "keywords": [
+                "友情点",
+                "赠送好友"
+            ],
+            "notes": "第一版先由 AI 在好友页自行寻找赠送入口，执行前仍受护栏限制。"
+        },
+        {
+            "name": "招募",
+            "keywords": [
+                "招募"
+            ],
+            "notes": "遇到消耗高级货币或购买确认时必须停机。"
+        },
+        {
+            "name": "竞技场挑战",
+            "keywords": [
+                "竞技场",
+                "挑战"
+            ],
+            "notes": "只走本服竞技场-资格赛；优先一键战斗，条件不足时只点免费挑战。"
+        },
+        {
+            "name": "日常商店刷新",
+            "keywords": [
+                "日常商店",
+                "商店刷新"
+            ],
+            "notes": "点击前往，在日常商店点击刷新2次，自动购买弹窗复用刷新坐标关闭，最后点小房子退出。"
+        },
+        {
+            "name": "挑战回忆之屋",
+            "keywords": [
+                "回忆之屋",
+                "挑战回忆"
+            ],
+            "notes": "点击前往，在回忆之屋点击扫荡1次，弹出奖励复用扫荡坐标关闭，最后点小房子退出。"
+        },
+        {
+            "name": "参与日常副本",
+            "keywords": [
+                "日常副本",
+                "副本"
+            ],
+            "notes": "点击前往，在日常副本界面扫荡2次，弹窗使用独立坐标(400, 250)关闭，最后点小房子退出。"
+        },
+        {
+            "name": "挑战赫者讨伐1次",
+            "keywords": [
+                "赫者讨伐",
+                "赫者",
+                "讨伐"
+            ],
+            "notes": "前往赫者讨伐，点击挑战，再点击BOSS战，开始战斗后点击跳过，结算点击确定，最后小房子退出。"
+        }
+    ],
+    "resolution": {
+        "width": 1280,
+        "height": 720
+    }
+}

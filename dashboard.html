@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动肝日常控制台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --success: #10b981;
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo-section h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-section p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .status-dot.active {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.blocked {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+
+        .status-dot.running {
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card h2 span {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .control-panel {
+            gap: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--danger-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .info-item label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-item span {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .log-section {
+            height: 550px;
+        }
+
+        @media (max-width: 900px) {
+            .log-section {
+                grid-column: 1;
+            }
+        }
+
+        .log-container {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-y: auto;
+            color: #a7f3d0;
+        }
+
+        .log-line {
+            margin-bottom: 4px;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+
+        .log-line.system { color: #94a3b8; }
+        .log-line.error { color: #f87171; }
+        .log-line.step { color: #38bdf8; }
+        .log-line.rules { color: #fbbf24; }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .config-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .task-list-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .task-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.08);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .task-name {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Switch Toggle Switch 容器 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        /* 隐藏默认复选框 */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* 滑块背景 */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #334155;
+            transition: .25s;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* 滑动圆点 */
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: .25s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 打开状态：划过的区间填充颜色（高亮蓝色） */
+        input:checked + .slider {
+            background-color: var(--primary);
+            box-shadow: 0 0 8px var(--primary-glow);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* 打开状态：滑块往右划 */
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Toast 气泡弹窗容器 */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Toast 气泡卡片主体 */
+        .toast {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 4px solid var(--primary);
+            color: var(--text-primary);
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            font-size: 13.5px;
+            min-width: 280px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            opacity: 0;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left-color: var(--success);
+        }
+
+        .toast-error {
+            border-left-color: var(--danger);
+        }
+
+        /* 设备连接指示呼吸灯 */
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.disconnected {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+
+        /* 模拟器多开 Tab 样式 */
+        .device-tab {
+            background: rgba(30, 41, 59, 0.45);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .device-tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .device-tab.active {
+            background: var(--primary);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: var(--text-primary);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        /* Tab 内独立状态指示灯 */
+        .tab-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #94a3b8;
+            transition: background 0.3s;
+        }
+
+        .tab-dot.running {
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+            animation: pulse 1.2s infinite;
+        }
+
+        .tab-dot.blocked {
+            background: var(--danger);
+            box-shadow: 0 0 6px var(--danger);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <h1>自动肝日常控制台</h1>
+            <p>MuMu 模拟器 + ADB 自动化助手</p>
+        </div>
+        <div class="status-badge">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">正在连接...</span>
+        </div>
+    </header>
+
+    <div class="card" style="width: 100%; max-width: 1200px; margin-bottom: 24px;">
+        <h2>多开模拟器管理 <span>点击设备以切换下方控制台的监视和控制目标</span></h2>
+        <div id="deviceTabsContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;">
+            <div style="font-size: 13px; color: var(--text-secondary); padding: 8px 0;">正在探测本地在线模拟器设备...</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 左侧面板组 -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- 控制面板 -->
+            <div class="card control-panel">
+                <h2>任务控制中心 <span>版本 v1.1.0</span></h2>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>运行状态</label>
+                        <span id="stateVal">空闲</span>
+                    </div>
+                    <div class="info-item">
+                        <label>当前目标</label>
+                        <span id="targetVal">-</span>
+                    </div>
+                </div>
+
+
+
+                <div class="btn-group" style="margin-top: 10px;">
+                    <button id="btnAll" class="btn btn-primary" onclick="runSelectedTasks()">
+                        <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17H13V15H11V17M11,13H13V7H11V13Z"/></svg>
+                        开始一键托管全部日常
+                    </button>
+                    
+                    <button id="btnStop" class="btn btn-danger" onclick="stopTask()" disabled>
+                        <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M18,18H6V6H18V18Z"/></svg>
+                        终止当前运行
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 模拟器连接管理 -->
+            <div class="card">
+                <h2>模拟器连接管理 <span id="connectStatus" style="color: var(--success); font-weight: bold; display: none;">连接成功</span></h2>
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <!-- 设备在线状态灯 -->
+                    <div id="connectionStatusIndicator" style="display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--card-border);">
+                        <div id="connectLight" class="status-dot disconnected"></div>
+                        <span id="connectStatusText" style="color: var(--text-secondary);">加载状态中...</span>
+                    </div>
+
+                    <div>
+                        <div class="config-label-row">
+                            <label for="deviceInput">设备连接端口 (IP:PORT 或 设备ID)</label>
+                        </div>
+                        <input type="text" id="deviceInput" placeholder="例如 127.0.0.1:16416" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0, 0, 0, 0.2); color: var(--text-primary); outline: none; font-size: 14px;">
+                    </div>
+                    
+                    <div id="onlineDevicesContainer" style="font-size: 12px; color: var(--text-secondary); display: none;">
+                        <label>检测到当前在线设备:</label>
+                        <select id="deviceSelect" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(0, 0, 0, 0.2); color: var(--text-primary); outline: none; margin-top: 4px;" onchange="document.getElementById('deviceInput').value = this.value">
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btnConnectDevice" class="btn btn-primary" style="flex: 1.2;" onclick="connectDevice()">
+                            连接并绑定设备
+                        </button>
+                        <button id="btnScanDevice" class="btn" style="flex: 0.8; background: rgba(255, 255, 255, 0.06); color: var(--text-primary); border: 1px solid var(--card-border); transition: background 0.2s;" onclick="scanDevice()">
+                            自动搜寻端口
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 参数配置面板 -->
+            <div class="card">
+                <h2>日常任务参数配置 <span id="saveStatus" style="color: var(--success); font-weight: bold; display: none;">已保存</span></h2>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <div class="config-label-row">
+                            <label for="arenaRange">竞技场挑战次数 (0 - 15 次)</label>
+                            <span id="arenaVal" style="font-weight: bold; color: var(--primary);">3次</span>
+                        </div>
+                        <input type="range" id="arenaRange" min="0" max="15" value="3" style="width: 100%; cursor: pointer;" oninput="document.getElementById('arenaVal').innerText = this.value + '次'">
+                    </div>
+                    
+                    <div>
+                        <div class="config-label-row">
+                            <label for="warehouseRange">资源快速采集次数 (0 - 4 次)</label>
+                            <span id="warehouseVal" style="font-weight: bold; color: var(--primary);">3次</span>
+                        </div>
+                        <input type="range" id="warehouseRange" min="0" max="4" value="3" style="width: 100%; cursor: pointer;" oninput="document.getElementById('warehouseVal').innerText = this.value + '次'">
+                    </div>
+
+                    <div>
+                        <div class="config-label-row">
+                            <label for="shopRange">日常商店刷新次数 (0 - 10 次)</label>
+                            <span id="shopVal" style="font-weight: bold; color: var(--primary);">2次</span>
+                        </div>
+                        <input type="range" id="shopRange" min="0" max="10" value="2" style="width: 100%; cursor: pointer;" oninput="document.getElementById('shopVal').innerText = this.value + '次'">
+                    </div>
+
+                    <button id="btnSaveConfig" class="btn btn-primary" onclick="saveConfig()" style="margin-top: 6px;">
+                        保存全局配置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 右侧面板组 -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- 系统日常任务使用说明 -->
+            <div class="card">
+                <h2>系统日常任务使用说明</h2>
+                <div style="display: flex; flex-direction: column; gap: 16px; font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: flex-start; gap: 8px;">
+                            <span style="color: var(--danger); font-weight: bold; margin-top: 2px;">⚠️</span>
+                            <span><strong>忽略执行任务</strong>：本系统会自动忽略低性价比的 <strong>“库克利亚监狱战斗3次”</strong>、<strong>“镜像试炼战斗3次”</strong> 和 <strong>“强化装备1次”</strong> 这三个日常任务，并在扫描任务列表时自动滑屏跳过它们，请不要在前端勾选或在日常列表执意寻找它们。</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px;">
+                            <span style="color: var(--primary); font-weight: bold; margin-top: 2px;">ℹ️</span>
+                            <span><strong>委托任务说明</strong>：<strong>“接取3次委托任务”</strong> 因奖励随机性较大，强烈建议您在每日上线时<strong>人为手动接取并做完</strong>。本系统在开启后，仅在日常任务页检测到其已达标时自动帮您核销领奖；若检测到其未做完，系统会自动安全挂起停机以防误触。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志控制台 -->
+            <div class="card log-section" style="flex-grow: 1; height: auto;">
+                <h2>执行日志控制台</h2>
+                <div class="log-container" id="logContainer" style="flex-grow: 1; min-height: 250px;">
+                    <div class="log-line system">等待指令，点击上    <script>
+        let activeDeviceId = null;
+        let lastLogsLengths = {}; // 存储 device_id -> logs length
+        let lastScreenshotTimes = {}; // 存储 device_id -> timestamp
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = '';
+            if (type === 'success') {
+                icon = `<svg style="width:20px;height:20px;color:var(--success)" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/></svg>`;
+            } else if (type === 'error') {
+                icon = `<svg style="width:20px;height:20px;color:var(--danger)" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M13 17H11V15H13V17M13 13H11V7H13V13Z"/></svg>`;
+            } else {
+                icon = `<svg style="width:20px;height:20px;color:var(--primary)" viewBox="0 0 24 24"><path fill="currentColor" d="M11 18H13V16H11V18M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M12 6C9.79 6 8 7.79 8 10H10C10 8.9 10.9 8 12 8S14 8.9 14 10C14 12 11 11.75 11 15H13C13 12.75 16 12.5 16 10C16 7.79 14.21 6 12 6Z"/></svg>`;
+            }
+            
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            container.appendChild(toast);
+            
+            toast.offsetHeight; // force reflow
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function switchActiveDevice(deviceId) {
+            if (activeDeviceId === deviceId) return;
+            activeDeviceId = deviceId;
+            
+            // 更新 Tab 激活样式
+            const tabs = document.querySelectorAll('.device-tab');
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-device-id') === deviceId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // 切换时，为了避免日志污染，将当前日志 DOM 重新渲染
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = '<div class="log-line system">切换到设备 ' + deviceId + '，正在拉取状态...</div>';
+            
+            // 强制该设备重新刷新状态和截图
+            lastLogsLengths[deviceId] = 0;
+            updateStatus();
+            updateScreenshot(true);
+            showToast(`已切换监视设备为: ${deviceId}`, 'info');
+        }
+
+        function updateScreenshot(force = false) {
+            if (!activeDeviceId) return;
+            const now = Date.now();
+            const lastTime = lastScreenshotTimes[activeDeviceId] || 0;
+            if (!force && (now - lastTime < 3000)) return; // 默认3秒更新一次截图，防止频率过高
+            
+            lastScreenshotTimes[activeDeviceId] = now;
+            const img = document.getElementById('mumuScreen');
+            const mask = document.getElementById('screenMask');
+            
+            img.onload = () => {
+                mask.style.opacity = '0';
+            };
+            img.onerror = () => {
+                mask.style.opacity = '1';
+            };
+            
+            img.src = `/screenshot?device_id=${encodeURIComponent(activeDeviceId)}&t=${now}`;
+        }
+
+        function updateStatus() {
+            // 获取所有设备的状态，这样可以在 Tab 上显示每个设备自己的呼吸灯
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(allData => {
+                    // 1. 遍历 Tab，更新每个 Tab 上的运行呼吸灯
+                    for (const devId in allData) {
+                        const devState = allData[devId];
+                        const dot = document.getElementById('dot-' + devId);
+                        if (dot) {
+                            dot.className = 'tab-dot';
+                            if (devState.status === 'running') {
+                                dot.classList.add('running');
+                            } else if (devState.status === 'blocked') {
+                                dot.classList.add('blocked');
+                            }
+                        }
+                    }
+
+                    // 2. 如果当前没有选中的设备，且已经拉到了状态数据，设置第一个为 active
+                    const devIds = Object.keys(allData);
+                    if (!activeDeviceId && devIds.length > 0) {
+                        // 优先查找绑定的 current_device，如果还没有，默认第一个
+                        fetch('/api/device')
+                            .then(res => res.json())
+                            .then(deviceConfig => {
+                                if (deviceConfig.current_device && devIds.includes(deviceConfig.current_device)) {
+                                    switchActiveDevice(deviceConfig.current_device);
+                                } else {
+                                    switchActiveDevice(devIds[0]);
+                                }
+                            })
+                            .catch(() => {
+                                switchActiveDevice(devIds[0]);
+                            });
+                        return;
+                    }
+
+                    if (!activeDeviceId) return;
+
+                    const data = allData[activeDeviceId];
+                    if (!data) {
+                        // 如果选中的设备由于某种原因在列表中消失了
+                        return;
+                    }
+
+                    // 3. 更新当前活跃设备状态指示面板
+                    const statusDot = document.getElementById('statusDot');
+                    const statusText = document.getElementById('statusText');
+                    
+                    statusDot.className = 'status-dot';
+                    let isRunning = false;
+                    if (data.status === 'idle') {
+                        statusDot.classList.add('connected'); // 空闲时，只要模拟器在线即显示绿色常亮
+                        statusText.innerText = '在线/空闲 (Idle)';
+                        document.getElementById('stateVal').innerText = '空闲';
+                        isRunning = false;
+                    } else if (data.status === 'running') {
+                        statusDot.className = 'status-dot';
+                        statusDot.style.background = 'var(--success)';
+                        statusDot.style.boxShadow = '0 0 8px var(--success)';
+                        statusDot.style.animation = 'pulse 1.5s infinite';
+                        statusText.innerText = '正在自动化托管中...';
+                        document.getElementById('stateVal').innerText = '正在运行';
+                        isRunning = true;
+                    } else if (data.status === 'blocked') {
+                        statusDot.classList.add('blocked');
+                        statusText.innerText = '异常/阻断 (' + data.status.toUpperCase() + ')';
+                        document.getElementById('stateVal').innerText = '安全挂起 / 阻断';
+                        isRunning = false;
+                    } else {
+                        statusDot.classList.add('disconnected');
+                        statusText.innerText = '已中止/停止 (' + data.status.toUpperCase() + ')';
+                        document.getElementById('stateVal').innerText = '正常停止';
+                        isRunning = false;
+                    }
+
+                    // 状态按钮使能控制
+                    document.getElementById('btnAll').disabled = isRunning;
+                    document.getElementById('btnStop').disabled = !isRunning;
+
+                    // 参数配置项在日常大循环运行期间禁用保护
+                    const configIds = ["arenaRange", "warehouseRange", "shopRange", "btnSaveConfig", "deviceInput", "deviceSelect", "btnConnectDevice"];
+                    configIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.disabled = isRunning;
+                    });
+
+                    document.getElementById('targetVal').innerText = data.target || '-';
+
+                    // 4. 更新日志，带设备隔离
+                    const logContainer = document.getElementById('logContainer');
+                    const prevLength = lastLogsLengths[activeDeviceId] || 0;
+                    if (data.logs.length !== prevLength) {
+                        logContainer.innerHTML = '';
+                        data.logs.forEach(log => {
+                            const line = document.createElement('div');
+                            line.className = 'log-line';
+                            if (log.includes('[步骤')) {
+                                line.classList.add('step');
+                            } else if (log.includes('[BLOCKED]') || log.includes('发生异常')) {
+                                line.classList.add('error');
+                            } else if (log.includes('[RULES]')) {
+                                line.classList.add('rules');
+                            } else {
+                                line.classList.add('system');
+                            }
+                            line.innerText = log;
+                            logContainer.appendChild(line);
+                        });
+                        logContainer.scrollTop = logContainer.scrollHeight;
+                        lastLogsLengths[activeDeviceId] = data.logs.length;
+                    }
+
+                    // 5. 刷新当前活跃设备的模拟器截图
+                    updateScreenshot();
+                })
+                .catch(err => console.error('获取状态失败:', err));
+        }
+
+        function runSelectedTasks() {
+            if (!activeDeviceId) {
+                showToast('当前未选中任何活跃的模拟器设备', 'error');
+                return;
+            }
+            const allTasks = ["login", "commission", "friendship", "recruitment", "arena", "collect", "donate", "daily_dungeon", "shop_refresh", "memory_house", "kakuja_hunt"];
+            fetch('/api/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ device_id: activeDeviceId, tasks: allTasks })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`启动成功！设备 ${activeDeviceId} 开始日常托管。`, 'success');
+                    updateStatus();
+                } else {
+                    showToast('运行失败: ' + data.reason, 'error');
+                }
+            })
+            .catch(err => showToast('运行发生错误: ' + err, 'error'));
+        }
+
+        function stopTask() {
+            if (!activeDeviceId) return;
+            if (confirm(`确认强行终止设备 ${activeDeviceId} 当前的日常任务？这会在当前动作完成后安全退出。`)) {
+                fetch('/api/stop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: activeDeviceId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(`停止指令已下发给设备: ${activeDeviceId}`, 'success');
+                    }
+                })
+                .catch(err => showToast('下发指令错误: ' + err, 'error'));
+            }
+        }
+
+        function loadConfig() {
+            fetch('/api/config')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('arenaRange').value = data.max_free_challenges;
+                    document.getElementById('arenaVal').innerText = data.max_free_challenges + '次';
+                    
+                    document.getElementById('warehouseRange').value = data.max_collect_actions;
+                    document.getElementById('warehouseVal').innerText = data.max_collect_actions + '次';
+ 
+                    document.getElementById('shopRange').value = data.max_refresh_actions;
+                    document.getElementById('shopVal').innerText = data.max_refresh_actions + '次';
+                })
+                .catch(err => console.error('加载超参数失败:', err));
+        }
+
+        function saveConfig() {
+            const data = {
+                max_free_challenges: parseInt(document.getElementById('arenaRange').value),
+                max_recruit_actions: 10,
+                max_collect_actions: parseInt(document.getElementById('warehouseRange').value),
+                max_refresh_actions: parseInt(document.getElementById('shopRange').value)
+            };
+            
+            const btn = document.getElementById('btnSaveConfig');
+            btn.disabled = true;
+            btn.innerText = '正在保存...';
+            
+            fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(resData => {
+                btn.disabled = false;
+                btn.innerText = '保存全局配置';
+                if (resData.success) {
+                    const saveStatus = document.getElementById('saveStatus');
+                    saveStatus.style.display = 'inline';
+                    setTimeout(() => {
+                        saveStatus.style.display = 'none';
+                    }, 2000);
+                    showToast('全局配置保存成功', 'success');
+                } else {
+                    showToast('保存失败: ' + resData.reason, 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = '保存全局配置';
+                showToast('保存发生错误: ' + err, 'error');
+            });
+        }
+
+        function loadDeviceStatus() {
+            fetch('/api/device')
+                .then(res => res.json())
+                .then(data => {
+                    const light = document.getElementById('connectLight');
+                    const statusText = document.getElementById('connectStatusText');
+                    
+                    if (data.current_device) {
+                        document.getElementById('deviceInput').value = data.current_device;
+                    }
+                    
+                    const select = document.getElementById('deviceSelect');
+                    const tabsContainer = document.getElementById('deviceTabsContainer');
+                    
+                    let deviceOnline = false;
+                    if (data.devices && data.devices.length > 0) {
+                        // 渲染下拉选择框
+                        select.innerHTML = '';
+                        // 渲染顶部的 Tabs 
+                        tabsContainer.innerHTML = '';
+                        
+                        data.devices.forEach(dev => {
+                            // 下拉框option
+                            const opt = document.createElement('option');
+                            opt.value = dev;
+                            opt.text = dev + (dev === data.current_device ? ' (当前绑定)' : '');
+                            if (dev === data.current_device) {
+                                opt.selected = true;
+                                deviceOnline = true;
+                            }
+                            select.appendChild(opt);
+
+                            // 顶部 Tab 按钮
+                            const tab = document.createElement('div');
+                            tab.className = `device-tab${dev === activeDeviceId ? ' active' : ''}`;
+                            tab.setAttribute('data-device-id', dev);
+                            tab.onclick = () => switchActiveDevice(dev);
+                            
+                            // 呼吸指示灯
+                            const dot = document.createElement('span');
+                            dot.className = 'tab-dot';
+                            dot.id = `dot-${dev}`;
+                            
+                            // 设备名/端口号
+                            const nameSpan = document.createElement('span');
+                            nameSpan.innerText = dev;
+
+                            tab.appendChild(dot);
+                            tab.appendChild(nameSpan);
+                            tabsContainer.appendChild(tab);
+                        });
+                        document.getElementById('onlineDevicesContainer').style.display = 'block';
+                    } else {
+                        tabsContainer.innerHTML = '<div style="font-size: 13px; color: var(--text-secondary); padding: 8px 0;">未检测到在线设备，请连接或开启模拟器</div>';
+                        document.getElementById('onlineDevicesContainer').style.display = 'none';
+                    }
+                    
+                    if (data.current_device) {
+                        if (deviceOnline) {
+                            light.className = 'status-dot connected';
+                            statusText.innerHTML = `已连接活跃设备: <strong style="color:var(--success)">${data.current_device}</strong>`;
+                        } else {
+                            light.className = 'status-dot disconnected';
+                            statusText.innerHTML = `绑定设备 <strong style="color:var(--danger)">${data.current_device}</strong> 已离线 (请尝试重连或开启模拟器)`;
+                        }
+                    } else {
+                        light.className = 'status-dot disconnected';
+                        statusText.innerText = '未绑定任何模拟器设备';
+                    }
+                })
+                .catch(err => console.error('加载设备状态失败:', err));
+        }
+
+        function connectDevice() {
+            const devId = document.getElementById('deviceInput').value.trim();
+            if (!devId) {
+                showToast('请输入设备ID或端口连接串', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('btnConnectDevice');
+            btn.disabled = true;
+            btn.innerText = '正在连接...';
+            
+            fetch('/api/device', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ device_id: devId })
+            })
+            .then(res => res.json())
+            .then(resData => {
+                btn.disabled = false;
+                btn.innerText = '连接并绑定设备';
+                if (resData.success) {
+                    showToast(`设备连接成功并已绑定: ${devId}`, 'success');
+                    // 绑定成功后，强制切换到该设备
+                    switchActiveDevice(devId);
+                    loadDeviceStatus();
+                } else {
+                    showToast('连接失败: ' + resData.reason, 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = '连接并绑定设备';
+                showToast('连接发生错误: ' + err, 'error');
+            });
+        }
+
+        function scanDevice() {
+            const btn = document.getElementById('btnScanDevice');
+            btn.disabled = true;
+            btn.innerText = '正在搜寻...';
+            
+            showToast('正在快速搜寻局域网模拟器端口，请稍候...', 'info');
+            
+            fetch('/api/device/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(resData => {
+                btn.disabled = false;
+                btn.innerText = '自动搜寻端口';
+                if (resData.success) {
+                    showToast(`搜寻完毕！共找到 ${resData.scanned_count} 个模拟器设备。已自动绑定并激活: ${resData.current_device}`, 'success');
+                    // 绑定成功后，强制切换到该设备
+                    switchActiveDevice(resData.current_device);
+                    loadDeviceStatus();
+                } else {
+                    showToast('搜寻失败: ' + resData.reason, 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = '自动搜寻端口';
+                showToast('搜寻发生错误: ' + err, 'error');
+            });
+        }
+
+        // 定时轮询状态与设备列表
+        setInterval(updateStatus, 1000);
+        setInterval(loadDeviceStatus, 5000); // 增加每5秒刷新一次在线设备列表，以便拔插能热更新
+        
+        // 初始加载配置
+        setTimeout(loadConfig, 200);
+        setTimeout(loadDeviceStatus, 300);
+    </script>
+    <!-- Toast 通知容器 -->
+    <div id="toastContainer" class="toast-container"></div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Runtime screenshots and logs
+latest.png
+task_runs/
+temp_screenshots/
+screenshots/
+config_runtime_*.json
+
+# VS Code history or other IDE settings
+.vscode/
+.idea/

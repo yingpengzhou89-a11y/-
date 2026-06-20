@@ -1,0 +1,168 @@
+
+=================== tasks.shop_refresh ===================
+def run_task(runner, observation):
+    """独立包装：日常商店刷新2次日常任务的控制与退出逻辑"""
+    from task_runner import merge_shop_refresh_config
+    
+    page_type = runner.classify_current_page(observation)
+    shop_config = merge_shop_refresh_config(runner.app_config)
+
+    # 1. 弹出快速购买的结算页处理
+    if page_type == "shop_buy_settlement":
+        return {
+            "intent": "日常商店购买弹窗点击关闭",
+            "action": "tap",
+            "target": shop_config["refresh_point"],
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
+    # 2. 刷新动作计数限制
+    refresh_actions = runner.decision_count(intent_contains="日常商店执行刷新")
+    max_refresh_actions = int(shop_config.get("max_refresh_actions", 2))
+
+    if refresh_actions >= max_refresh_actions:
+        return {
+            "intent": "日常商店刷新动作已满足限制，点击小房子返回主界面",
+            "action": "tap",
+            "target": shop_config["back_point"],
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
+    # 3. 正常刷新点击
+    return {
+        "intent": f"日常商店执行刷新第{refresh_actions + 1}次",
+        "action": "tap",
+        "target": shop_config["refresh_point"],
+        "confidence": 0.85,
+        "risk": "low"
+    }
+
+=================== tasks.memory_house ===================
+def run_task(runner, observation):
+    """独立包装：挑战回忆之屋1次日常任务的控制与退出逻辑"""
+    from task_runner import merge_memory_house_config
+    
+    page_type = runner.classify_current_page(observation)
+    memory_config = merge_memory_house_config(runner.app_config)
+
+    # 1. 扫荡奖励领取结算弹窗处理
+    if page_type == "memory_house_sweep_settlement":
+        return {
+            "intent": "回忆之屋扫荡奖励弹窗关闭",
+            "action": "tap",
+            "target": memory_config["sweep_point"],
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
+    # 2. 扫荡动作计数限制
+    sweep_actions = runner.decision_count(intent_contains="回忆之屋执行扫荡")
+    max_sweep_actions = int(memory_config.get("max_sweep_actions", 1))
+
+    if sweep_actions >= max_sweep_actions:
+        return {
+            "intent": "回忆之屋扫荡动作已满足限制，点击小房子返回主界面",
+            "action": "tap",
+            "target": memory_config["back_point"],
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
+    # 3. 正常扫荡点击
+    return {
+        "intent": f"回忆之屋执行扫荡第{sweep_actions + 1}次",
+        "action": "tap",
+        "target": memory_config["sweep_point"],
+        "confidence": 0.85,
+        "risk": "low"
+    }
+
+=================== tasks.daily_dungeon ===================
+def run_task(runner, observation):
+    """独立包装：参与2次日常副本日常任务的控制与退出逻辑"""
+    from task_runner import merge_daily_dungeon_config
+    
+    page_type = runner.classify_current_page(observation)
+    dungeon_config = merge_daily_dungeon_config(runner.app_config)
+
+    # 1. 扫荡奖励领取结算弹窗处理
+    if page_type == "daily_dungeon_settlement":
+        return {
+            "intent": "日常副本扫荡结算弹窗关闭",
+            "action": "tap",
+            "target": dungeon_config["close_point"],
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
+    # 2. 扫荡动作计数限制
+    sweep_actions = runner.decision_count(intent_contains="日常副本执行扫荡")
+    max_sweep_actions = int(dungeon_config.get("max_sweep_actions", 2))
+
+    if sweep_actions >= max_sweep_actions:
+        return {
+            "intent": "日常副本扫荡动作已满足限制，点击小房子返回主界面",
+            "action": "tap",
+            "target": dungeon_config["back_point"],
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
+    # 3. 正常扫荡点击
+    return {
+        "intent": f"日常副本执行扫荡第{sweep_actions + 1}次",
+        "action": "tap",
+        "target": dungeon_config["sweep_point"],
+        "confidence": 0.85,
+        "risk": "low"
+    }
+
+=================== tasks.guild_donation ===================
+def run_task(runner, observation):
+    """独立包装：进行1次组织捐献日常任务的控制与退出逻辑"""
+    from task_runner import merge_guild_donation_config
+    
+    page_type = runner.classify_current_page(observation)
+    donation_config = merge_guild_donation_config(runner.app_config)
+
+    if page_type == "guild_donation_select":
+        used_gold_donation = runner.has_decision("组织捐献页面点击金币捐献")
+        if not used_gold_donation:
+            return {
+                "intent": "组织捐献页面点击金币捐献",
+                "action": "tap",
+                "target": donation_config["gold_donation_point"],
+                "confidence": 0.85,
+                "risk": "low"
+            }
+        else:
+            return {
+                "intent": "组织捐献完成，关闭选择弹窗",
+                "action": "tap",
+                "target": donation_config["close_point"],
+                "confidence": 0.85,
+                "risk": "low"
+            }
+
+    elif page_type == "guild_main":
+        # 检查我们是否已经执行过金币捐献
+        done_donation = runner.has_decision("组织捐献页面点击金币捐献")
+        if not done_donation:
+            return {
+                "intent": "组织页面点击组织捐献入口",
+                "action": "tap",
+                "target": donation_config["donation_entry_point"],
+                "confidence": 0.85,
+                "risk": "low"
+            }
+        else:
+            return {
+                "intent": "组织捐献任务结束，返回主界面",
+                "action": "tap",
+                "target": donation_config["back_point"],
+                "confidence": 0.85,
+                "risk": "low"
+            }
+    return None

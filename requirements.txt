@@ -1,0 +1,7 @@
+opencv-python
+numpy
+rapidocr-onnxruntime
+
+# Optional OCR backends. Install one when you are ready to recognize text.
+# pytesseract
+# easyocr
