@@ -829,10 +829,13 @@ class TaskRunner:
         if observation.get("is_task_page"):
             self.active_task_go_clicked = False  # 成功回到任务页，重置本轮“前往”状态
             self.active_target_task = None       # 重置当前临时目标任务
+
+            # ------------------------------------------------------------
+            # 第一阶段：安全拦截（委托未完成或目标已领取）
+            # ------------------------------------------------------------
             for task in tasks:
                 if target_task and target_task not in task["title"]:
                     continue
-
                 # 委托任务为人工执行，未完成时直接安全停机
                 if target_task and "委托" in target_task and task["button_state"] == "go":
                     return {
@@ -844,7 +847,6 @@ class TaskRunner:
                         "confidence": 1,
                         "risk": "low"
                     }
-
                 if target_task and task["button_state"] == "claimed":
                     return {
                         "intent": f"目标任务已领取: {task['title']}",
@@ -856,19 +858,14 @@ class TaskRunner:
                         "risk": "low"
                     }
 
-                if task["button_state"] == "claim" or (task["done"] and task["button_state"] not in ("go", "claimed")):
-                    return {
-                        "intent": f"领取已完成任务奖励: {task['title']}",
-                        "action": "claim",
-                        "target": task["action_point"],
-                        "confidence": 0.9,
-                        "risk": "low"
-                    }
-
+            # ------------------------------------------------------------
+            # 第二阶段：遍历可见列表，优先寻找并执行有效的 go 任务
+            # ------------------------------------------------------------
+            go_task_to_execute = None
+            has_go_task = False
             for task in tasks:
                 if target_task and target_task not in task["title"]:
                     continue
-
                 if not task["done"] and task["button_state"] == "go":
                     # 过滤监狱及不受支持的低性价比任务
                     if any(k in task["title"] for k in ["库克利亚", "监狱", "镜像试炼", "强化装备"]):
@@ -878,139 +875,137 @@ class TaskRunner:
                         continue
                     if "招募" in task["title"] and self.has_decision("高级招募已完成，返回主界面"):
                         continue
-                    self.active_task_go_clicked = True  # 设置本轮已点击“前往”状态
-                    self.active_target_task = task["title"]  # 记录当前点击前往的任务
-                    return {
-                        "intent": f"前往执行未完成任务: {task['title']}",
-                        "action": "tap",
-                        "target": task["action_point"],
-                        "confidence": 0.82,
-                        "risk": "low"
-                    }
+                    has_go_task = True
+                    if not go_task_to_execute:
+                        go_task_to_execute = task
 
-            # 2.2 领取日常活跃度四个宝箱（当没有可领取且没有可前往的目标任务时）
-            has_claimable_task = any(
-                task["button_state"] == "claim" or (task["done"] and task["button_state"] not in ("go", "claimed"))
-                for task in tasks
-            )
-            has_go_task = False
+            if go_task_to_execute:
+                self.active_task_go_clicked = True  # 设置本轮已点击“前往”状态
+                self.active_target_task = go_task_to_execute["title"]  # 记录当前点击前往的任务
+                return {
+                    "intent": f"前往执行未完成任务: {go_task_to_execute['title']}",
+                    "action": "tap",
+                    "target": go_task_to_execute["action_point"],
+                    "confidence": 0.82,
+                    "risk": "low"
+                }
+
+            # ------------------------------------------------------------
+            # 第三阶段：若当前屏没有 go 任务，且滚屏次数未超限，优先滑动寻找 go 任务
+            # ------------------------------------------------------------
+            if target_task:
+                scroll_intent = f"滚动任务列表寻找目标任务: {target_task}"
+                max_scrolls = int(self.guardrails.get("max_target_search_scrolls", 6))
+            else:
+                scroll_intent = "滚动任务列表寻找未完成日常任务"
+                max_scrolls = 4
+
+            scroll_count = self.decision_count(action="swipe", intent_contains=scroll_intent)
+
+            # 在没有可做前往任务且滑动次数未超限前，继续向下滑动搜寻
+            if scroll_count < max_scrolls:
+                y1_val = 550
+                y2_val = 360
+                if target_task:
+                    claimed_or_rewarded = (
+                        self.has_decision("领取已完成任务奖励")
+                        or self.has_decision("目标任务已领取")
+                    )
+                    if claimed_or_rewarded:
+                        y1_val = 300
+                        y2_val = 610
+
+                return {
+                    "intent": scroll_intent,
+                    "action": "swipe",
+                    "target": {
+                        "x1": 700,
+                        "y1": y1_val,
+                        "x2": 700,
+                        "y2": y2_val,
+                        "duration_ms": 1000
+                    },
+                    "confidence": 0.75,
+                    "risk": "low"
+                }
+
+            # ------------------------------------------------------------
+            # 第四阶段：当滑动达到上限且没有 go 任务时，统一执行 claim 领奖
+            # ------------------------------------------------------------
+            has_claimable_task = False
             for task in tasks:
-                if not task["done"] and task["button_state"] == "go":
-                    if not target_task or target_task in task["title"]:
-                        # 过滤掉黑名单及不受支持的低性价比任务，才能计入有效的 go 任务
-                        if any(k in task["title"] for k in ["库克利亚", "监狱", "镜像试炼", "强化装备"]):
-                            continue
-                        supported_keywords = ["登录", "委托", "友情", "招募", "资源", "采集", "竞技", "捐献", "商店", "回忆", "副本", "讨伐", "赫者"]
-                        if not any(k in task["title"] for k in supported_keywords):
-                            continue
-                        if "招募" in task["title"] and self.has_decision("高级招募已完成，返回主界面"):
-                            continue
-                        has_go_task = True
-                        break
-
-            if not has_claimable_task:
-                # 解析当前活跃度
-                active_points = 0
-                import re
-                match = re.search(r'(\d+)\s*/\s*100', page_text)
-                if match:
-                    try:
-                        active_points = int(match.group(1))
-                    except ValueError:
-                        pass
-
-                chests = task_page_config.get("active_chests") or [
-                    {"x": 624, "y": 144},
-                    {"x": 800, "y": 144},
-                    {"x": 965, "y": 144},
-                    {"x": 1135, "y": 144}
-                ]
-                reqs = [25, 50, 75, 100]
-                # 只有当活跃度达到或超过 100 时，才允许领取宝箱
-                if active_points >= 100:
-                    for index, chest in enumerate(chests):
-                        chest_name = f"第{index + 1}个"
-                        chest_intent = f"领取日常活跃度宝箱{chest_name}"
-                        if not self.has_decision(chest_intent):
-                            return {
-                                "intent": chest_intent,
-                                "action": "tap",
-                                "target": chest,
-                                "confidence": 0.85,
-                                "risk": "low"
-                            }
-
-            # 滑动寻找可执行的任务（不论是指定目标还是大循环托管）
-            if tasks:
-                if target_task:
-                    scroll_intent = f"滚动任务列表寻找目标任务: {target_task}"
-                    max_scrolls = int(self.guardrails.get("max_target_search_scrolls", 6))
-                else:
-                    scroll_intent = "滚动任务列表寻找未完成日常任务"
-                    max_scrolls = 4  # 大循环向上最多滑动4次以遍历全部列表
-
-                scroll_count = self.decision_count(action="swipe", intent_contains=scroll_intent)
-
-                # 只有在没有可做任务（在大循环中）或者还没找到目标任务（在指定目标中）时才滑动
-                # 且滑动次数未达上限时滑动
-                if scroll_count < max_scrolls:
-                    y1_val = 550
-                    y2_val = 360
-
-                    if target_task:
-                        claimed_or_rewarded = (
-                            self.has_decision(f"领取已完成任务奖励")
-                            or self.has_decision("目标任务已领取")
-                        )
-                        if claimed_or_rewarded:
-                            y1_val = 300
-                            y2_val = 610
-
-                    # 大循环下，只有当当前屏确实没有任何有效的可执行任务（即 has_go_task 为 False），才往下滑动
-                    # 如果指定了具体目标任务，则始终在未达上限前滚动寻找它
-                    if target_task or (not has_claimable_task and not has_go_task):
-                        return {
-                            "intent": scroll_intent,
-                            "action": "swipe",
-                            "target": {
-                                "x1": 700,
-                                "y1": y1_val,
-                                "x2": 700,
-                                "y2": y2_val,
-                                "duration_ms": 1000
-                            },
-                            "confidence": 0.75,
-                            "risk": "low"
-                        }
-
-                if target_task:
-                    if self.has_decision("领取已完成任务奖励"):
-                        return {
-                            "intent": f"目标任务奖励已领取，停止查验: {target_task}",
-                            "action": "stop",
-                            "target": {
-                                "reason": "target reward was claimed"
-                            },
-                            "confidence": 1,
-                            "risk": "low"
-                        }
-
+                if target_task and target_task not in task["title"]:
+                    continue
+                if task["button_state"] == "claim" or (task["done"] and task["button_state"] not in ("go", "claimed")):
+                    has_claimable_task = True
                     return {
-                        "intent": f"未找到目标任务，停止: {target_task}",
-                        "action": "stop",
-                        "target": {
-                            "reason": "target task not found"
-                        },
-                        "confidence": 1,
+                        "intent": f"领取已完成任务奖励: {task['title']}",
+                        "action": "claim",
+                        "target": task["action_point"],
+                        "confidence": 0.9,
                         "risk": "low"
                     }
 
+            # ------------------------------------------------------------
+            # 第五阶段：若无日常领奖任务，领取日常活跃度宝箱并安全停机
+            # ------------------------------------------------------------
+            # 解析当前活跃度
+            active_points = 0
+            import re
+            match = re.search(r'(\d+)\s*/\s*100', page_text)
+            if match:
+                try:
+                    active_points = int(match.group(1))
+                except ValueError:
+                    pass
+
+            chests = task_page_config.get("active_chests") or [
+                {"x": 624, "y": 144},
+                {"x": 800, "y": 144},
+                {"x": 965, "y": 144},
+                {"x": 1135, "y": 144}
+            ]
+            # 只有当活跃度达到或超过 100 时，才允许领取宝箱
+            if active_points >= 100:
+                for index, chest in enumerate(chests):
+                    chest_name = f"第{index + 1}个"
+                    chest_intent = f"领取日常活跃度宝箱{chest_name}"
+                    if not self.has_decision(chest_intent):
+                        return {
+                            "intent": chest_intent,
+                            "action": "tap",
+                            "target": chest,
+                            "confidence": 0.85,
+                            "risk": "low"
+                        }
+
+            # 安全停机逻辑
             if not target_task:
                 return {
                     "intent": "当前任务页没有可执行或可领取任务",
                     "action": "stop",
                     "target": {
                         "reason": "no actionable task"
+                    },
+                    "confidence": 1,
+                    "risk": "low"
+                }
+            else:
+                if self.has_decision("领取已完成任务奖励") or self.has_decision("目标任务已领取"):
+                    return {
+                        "intent": f"目标任务奖励已领取，停止查验: {target_task}",
+                        "action": "stop",
+                        "target": {
+                            "reason": "target reward was claimed"
+                        },
+                        "confidence": 1,
+                        "risk": "low"
+                    }
+                return {
+                    "intent": f"未找到目标任务，停止: {target_task}",
+                    "action": "stop",
+                    "target": {
+                        "reason": "target task not found"
                     },
                     "confidence": 1,
                     "risk": "low"

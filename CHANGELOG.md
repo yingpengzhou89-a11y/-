@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 19:13:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L829-1016 -> L829-1011 (`+121 -126`) (Refactor daily tasks page decision tree to delay task rewards claiming until all possible routine tasks are completed or list scrolling reaches its limit)
+
 ## [Unreleased] - 2026-06-21 17:29:00 (CST)
 
 ### Changed
