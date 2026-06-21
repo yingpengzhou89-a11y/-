@@ -28,18 +28,7 @@ def run_task(runner, observation):
             "risk": "low"
         }
 
-    # 4. 勾选跳过招募动画
-    if (
-        text_contains_any(page_text, recruitment_config.get("skip_animation_keywords") or [])
-        and not runner.has_decision("勾选跳过招募动画")
-    ):
-        return {
-            "intent": "勾选跳过招募动画",
-            "action": "tap",
-            "target": recruitment_config["skip_animation_point"],
-            "confidence": 0.72,
-            "risk": "low"
-        }
+
 
     # 5. 执行一次高级招募十连，完成后退出
     has_done_ten = runner.has_decision("执行高级招募十连")

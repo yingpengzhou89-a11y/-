@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 17:29:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/config.json` L251-252 -> L251-252 (`+2 -2`) (Increase max_steps_per_task from 100 to 200, and max_run_seconds from 2700 to 3600)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L17-18 -> L17-18 (`+2 -2`) (Increase default max_steps_per_task to 200 and max_run_seconds to 3600)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L321-331 -> (Deleted) (`+0 -11`) (Remove check and action for checking and clicking checkSkipAnimation checkbox)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L519 -> (Deleted) (`+0 -1`) (Remove "勾选跳过招募动画" from whitelist)
+- `c:/Users/work/Desktop/daily_task/tasks/recruitment.py` L31-42 -> (Deleted) (`+0 -12`) (Remove recruitment "勾选跳过招募动画" branch logic)
+
+## [Unreleased] - 2026-06-21 16:42:00 (CST)
+
+### Fixed
+- `c:/Users/work/Desktop/daily_task/tasks/daily_dungeon.py` L3-8 -> L3-11 (`+2 -0`) (Fix NameError by correctly importing text_contains_any and extracting page_text from observation object)
+
 ## [Unreleased] - 2026-06-21 14:52:00 (CST)
 
 ### Changed

@@ -1,9 +1,11 @@
 def run_task(runner, observation):
     """独立包装：参与2次日常副本日常任务的控制与退出逻辑"""
     from task_runner import merge_daily_dungeon_config
+    from task_detector import text_contains_any
     
     page_type = runner.classify_current_page(observation)
     dungeon_config = merge_daily_dungeon_config(runner.app_config)
+    page_text = observation.get("page_text") or ""
 
     # 1. 扫荡奖励领取结算弹窗处理
     if page_type == "daily_dungeon_settlement":

@@ -14,8 +14,8 @@ from task_detector import detect_task_page, merge_task_config, text_contains_any
 
 
 DEFAULT_GUARDRAILS = {
-    "max_steps_per_task": 100,
-    "max_run_seconds": 2700,
+    "max_steps_per_task": 200,
+    "max_run_seconds": 3600,
     "min_confidence": 0.65,
     "max_unchanged_screens": 3,
     "max_target_search_scrolls": 6,
@@ -318,17 +318,7 @@ class TaskRunner:
                 "risk": "low"
             }
 
-        if (
-            text_contains_any(page_text, recruitment_config.get("skip_animation_keywords") or [])
-            and not self.has_decision("勾选跳过招募动画")
-        ):
-            return {
-                "intent": "勾选跳过招募动画",
-                "action": "tap",
-                "target": recruitment_config["skip_animation_point"],
-                "confidence": 0.72,
-                "risk": "low"
-            }
+
 
         single_count = self.decision_count(intent_contains="免费单抽")
         ten_count = self.decision_count(intent_contains="十连")
@@ -516,7 +506,6 @@ class TaskRunner:
             "从主界面打开任务页",
             "返回主界面以寻找任务页",
             "切换到高级招募",
-            "勾选跳过招募动画",
             "执行高级招募免费单抽",
             "执行高级招募十连",
             "确认消耗钻石进行快速采集",
