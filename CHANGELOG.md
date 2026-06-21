@@ -4,6 +4,7 @@
 
 ### Changed
 - `c:/Users/work/Desktop/daily_task/config.json` L251-252 -> L251-252 (`+2 -2`) (Increase max_steps_per_task from 100 to 200, and max_run_seconds from 2700 to 3600)
+- `c:/Users/work/Desktop/daily_task/README.md` L47-113 -> L47-131 (`+18 -0`) (Add bilingual prerequisites instructions for daily dungeon, recruitment and configuration)
 - `c:/Users/work/Desktop/daily_task/README.md` L1-310 -> L1-112 (`+112 -310`) (Rewrite outdated resource detector README to bilingual daily task automation instructions)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L17-18 -> L17-18 (`+2 -2`) (Increase default max_steps_per_task to 200 and max_run_seconds to 3600)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L321-331 -> (Deleted) (`+0 -11`) (Remove check and action for checking and clicking checkSkipAnimation checkbox)

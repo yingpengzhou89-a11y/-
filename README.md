@@ -11,17 +11,18 @@
 ### 主要功能
 
 * **多设备自动搜寻与管理**：支持一键扫描并自动绑定多开的 MuMu 模拟器端口（支持多开实例）。
-* **日常副本自适应扫荡**：
-  * 若页面检测到“一键扫荡”按钮，则执行一键扫荡。
-  * 若低战力账号尚未解锁一键扫荡，系统会自动切换到普通扫荡坐标，实现零人工干预的自适应扫荡。
 * **高上限守护线程**：支持长达 200 步的连续决策及 1 小时的安全运行守护，防止在大参数配置下超时中断。
 * **核心日常任务覆盖**：
-  * 自动友情点领取与赠送。
-  * 高级招募十连（不执行冗余动画勾选）。
-  * 资源仓库快速采集与上限保护。
-  * 竞技场挑战。
-  * 日常商店刷新与核销。
-  * 赫者讨伐与奖励结算。
+  * 友情点领取与赠送
+  * 高级招募十连
+  * 资源仓库快速采集
+  * 竞技场挑战
+  * 日常商店刷新
+  * 赫者讨伐
+  * 组织金币捐献
+  * 日常副本扫荡
+  * 日常商店刷新
+  * 回忆之屋扫荡
 * **实时 Web 控制面板**：提供网页端的画布屏幕投影、运行日志轮询、实时运行状态灯展示以及全局参数配置滑块。
 
 ### 项目文件结构 (Clean Architecture)
@@ -43,6 +44,15 @@ daily_task/
 ├── run_dj.bat             # 一键启动命令行模式
 └── daily_tasks.py         # 命令行模式执行入口
 ```
+
+### 前置准备与使用说明
+
+为了确保托管程序能够顺利跑完全程，请在启动托管前在游戏内及控制面板做好以下前置准备：
+
+1. **手动完成委托任务**：由于“接取3次委托任务”存在高随机性，系统在日常任务列表检测到其未做完时会触发安全挂起停机。请务必在启动托管前**人为手动接取并做完委托任务**。
+2. **游戏内勾选跳过招募动画**：系统已剔除了自动寻找并勾选招募动画跳过框的操作。请在游戏内的高级招募页面中，**手动勾选“跳过招募动画”**（游戏会自动记住该勾选状态）。
+3. **游戏内勾选竞技场自动挑战**：在游戏内竞技场挑战页面，请**手动勾选“自动战斗”**或相关跳过框。
+4. **配好控制面板参数**：在 Web 仪表盘的“日常任务参数配置”卡片中，**调好配好那三个日常参数**（竞技场挑战次数、资源快速采集次数、日常商店刷新次数），点击“保存全局配置”后再开始一键托管。
 
 ### 运行方式
 
@@ -97,6 +107,15 @@ daily_task/
 ├── run_dj.bat             # Start executor in CLI mode
 └── daily_tasks.py         # CLI entrypoint
 ```
+
+### Prerequisites & Usage Instructions
+
+To ensure the automation script runs smoothly without safety interrupts, please complete the following steps in-game and on the dashboard before starting:
+
+1. **Complete Commission Tasks Manually**: The system will trigger a safety stop if unfinished commission tasks are detected in the daily list. Please **manually accept and finish all 3 commission tasks** before starting.
+2. **Check "Skip Recruitment Animation" in Game**: The system no longer automatically checks this box. Please **manually tick the "Skip Animation" checkbox** on the recruitment screen (the game will remember this state).
+3. **Check "Auto Battle" in Arena**: Please **manually tick the "Auto Battle" or skip options** in the game's arena interface.
+4. **Configure Parameters on Dashboard**: Adjust the **three daily parameters** (Arena challenges, Resource warehouse collection times, and Shop refresh times) in the configuration panel, click "Save global config", and then click "Start".
 
 ### Get Started
 
