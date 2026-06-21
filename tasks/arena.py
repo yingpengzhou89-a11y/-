@@ -65,7 +65,7 @@ def run_task(runner, observation):
 
         # 之后是正常的免费挑战
         if text_contains_any(page_text, ["免费", "ť"]):
-            free_challenges = runner.decision_count(intent_contains="竞技场免费挑战")
+            free_challenges = runner.decision_count(action="tap", intent_contains="竞技场免费挑战", after_intent="前往执行未完成任务: 挑战竞技场")
             return {
                 "intent": f"竞技场免费挑战第{free_challenges + 1}次",
                 "action": "tap",

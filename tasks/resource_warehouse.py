@@ -8,7 +8,7 @@ def run_task(runner, observation):
     warehouse_config = merge_warehouse_config(runner.app_config)
 
     # 1. 动作计数限制，达到设定次数就关闭弹窗退出
-    collect_actions = runner.decision_count(intent_contains="执行快速采集")
+    collect_actions = runner.decision_count(action="tap", intent_contains="执行快速采集", after_intent="前往执行未完成任务: 资源仓库快速采集")
     max_actions = int(warehouse_config.get("max_collect_actions", 3))
 
     if collect_actions >= max_actions:

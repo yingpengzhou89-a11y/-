@@ -146,7 +146,7 @@
             "x": 640,
             "y": 650
         },
-        "max_free_challenges": 3
+        "max_free_challenges": 5
     },
     "warehouse": {
         "page_keywords": [
@@ -167,7 +167,7 @@
             "x": 1106,
             "y": 137
         },
-        "max_collect_actions": 3
+        "max_collect_actions": 2
     },
     "guild_donation": {
         "donation_entry_point": {

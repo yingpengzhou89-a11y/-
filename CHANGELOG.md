@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 22:43:00 (CST)
+
+### Added
+- `c:/Users/work/Desktop/daily_task/test_swipe.py` L1-103 (`+103 -0`) (Create interactive test_swipe.py utility for scroll coordinates and speeds fine-tuning)
+
+### Fixed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L653-1201 -> L653-1205 (`+7 -3`) (Define kakuja_hunt_loading and add it to transition routes)
+- `c:/Users/work/Desktop/daily_task/tasks/kakuja_hunt.py` L8 -> L8-18 (`+10 -0`) (Add kakuja_hunt_loading transitional wait to prevent lobby fallback)
+
+## [Unreleased] - 2026-06-21 21:20:00 (CST)
+
+### Fixed
+- `c:/Users/work/Desktop/daily_task/tasks/arena.py` L68 (`+1 -1`) (Isolate arena free challenges count with after_intent filter)
+- `c:/Users/work/Desktop/daily_task/tasks/daily_dungeon.py` L21 (`+1 -1`) (Isolate daily_dungeon sweep count with after_intent filter)
+- `c:/Users/work/Desktop/daily_task/tasks/kakuja_hunt.py` L58 (`+1 -1`) (Isolate kakuja_hunt action count with after_intent filter)
+- `c:/Users/work/Desktop/daily_task/tasks/memory_house.py` L19 (`+1 -1`) (Isolate memory_house sweep count with after_intent filter)
+- `c:/Users/work/Desktop/daily_task/tasks/resource_warehouse.py` L11 (`+1 -1`) (Isolate resource_warehouse collect count with after_intent filter)
+- `c:/Users/work/Desktop/daily_task/tasks/shop_refresh.py` L19 (`+1 -1`) (Isolate shop_refresh count with after_intent filter)
+
 ## [Unreleased] - 2026-06-21 20:58:00 (CST)
 
 ### Changed

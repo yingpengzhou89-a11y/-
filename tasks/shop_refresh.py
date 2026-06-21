@@ -16,7 +16,7 @@ def run_task(runner, observation):
         }
 
     # 2. 刷新动作计数限制
-    refresh_actions = runner.decision_count(intent_contains="日常商店执行刷新")
+    refresh_actions = runner.decision_count(action="tap", intent_contains="日常商店执行刷新", after_intent="前往执行未完成任务: 日常商店刷新")
     max_refresh_actions = int(shop_config.get("max_refresh_actions", 2))
 
     if refresh_actions >= max_refresh_actions:

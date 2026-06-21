@@ -5,6 +5,16 @@ def run_task(runner, observation):
     page_type = runner.classify_current_page(observation)
     config = merge_kakuja_hunt_config(runner.app_config)
 
+    # 0. 加载过渡动画处理
+    if page_type == "kakuja_hunt_loading":
+        return {
+            "intent": "赫者讨伐进入加载过渡，等待2秒",
+            "action": "wait",
+            "target": {"seconds": 2},
+            "confidence": 0.9,
+            "risk": "low"
+        }
+
     # 1. 战斗胜利结算页处理
     if page_type == "kakuja_hunt_victory":
         return {
@@ -55,7 +65,7 @@ def run_task(runner, observation):
                 "risk": "low"
             }
         
-        actions = runner.decision_count(intent_contains="赫者讨伐主界面点击挑战")
+        actions = runner.decision_count(action="tap", intent_contains="赫者讨伐主界面点击挑战", after_intent="前往执行未完成任务:")
         if actions >= int(config.get("max_actions", 1)):
             return {
                 "intent": "赫者讨伐动作已满足限制，点击小房子返回主界面",

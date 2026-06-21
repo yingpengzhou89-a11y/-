@@ -18,7 +18,7 @@ def run_task(runner, observation):
         }
 
     # 2. 扫荡动作计数限制
-    sweep_actions = runner.decision_count(intent_contains="日常副本执行扫荡")
+    sweep_actions = runner.decision_count(action="tap", intent_contains="日常副本执行扫荡", after_intent="前往执行未完成任务: 参与2次日常副本")
     max_sweep_actions = int(dungeon_config.get("max_sweep_actions", 2))
 
     if sweep_actions >= max_sweep_actions:

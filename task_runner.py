@@ -653,8 +653,12 @@ class TaskRunner:
         if text_contains_any(page_text, ["造成伤害", "挂起"]) and not text_contains_any(page_text, ["今日次数", "挑战列表", "本服", "资格赛", "VS", "一键布阵"]):
             return "kakuja_hunt_battle"
 
+        # 0.02 赫者讨伐加载动画页
+        if text_contains_any(page_text, ["强敌来袭", "强活来袭"]):
+            return "kakuja_hunt_loading"
+
         # 0.021 赫者讨伐挑战布阵页
-        if text_contains_any(page_text, ["BOSS战"]) and text_contains_any(page_text, ["挑战"]) and text_contains_any(page_text, ["布阵", "VS"]):
+        if text_contains_any(page_text, ["BOSS战"]) and text_contains_any(page_text, ["布阵", "VS", "一键布阵"]):
             return "kakuja_hunt_formation"
 
         # 0.022 赫者讨伐主界面
@@ -1043,7 +1047,7 @@ class TaskRunner:
                     is_matched_page = True
                 elif "副本" in effective_target and page_type in ["daily_dungeon_main", "daily_dungeon_settlement"]:
                     is_matched_page = True
-                elif ("讨伐" in effective_target or "赫者" in effective_target) and page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory"]:
+                elif ("讨伐" in effective_target or "赫者" in effective_target) and page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading"]:
                     is_matched_page = True
 
             is_go_triggered = self.active_task_go_clicked or is_matched_page or (effective_target and self.has_clicked_go(effective_target))
@@ -1109,7 +1113,7 @@ class TaskRunner:
                     decision = daily_dungeon.run_task(self, observation)
                     if decision:
                         return decision
-                elif ("讨伐" in effective_target or "赫者" in effective_target) and page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory"]:
+                elif ("讨伐" in effective_target or "赫者" in effective_target) and page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading"]:
                     decision = kakuja_hunt.run_task(self, observation)
                     if decision:
                         return decision
@@ -1187,7 +1191,7 @@ class TaskRunner:
                 }
 
             # 如果处于其他任何任务子页面 (如资格赛主页、布阵等) 但还没前往，一律点顶部房子图标 (324, 39) 退回大厅
-            if page_type in ["arena_main", "arena_qualifier", "arena_formation", "friendship", "unknown", "guild_main", "guild_donation_select", "shop_main", "shop_buy_settlement", "memory_house_main", "memory_house_sweep_settlement", "daily_dungeon_main", "daily_dungeon_settlement", "kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory"]:
+            if page_type in ["arena_main", "arena_qualifier", "arena_formation", "friendship", "unknown", "guild_main", "guild_donation_select", "shop_main", "shop_buy_settlement", "memory_house_main", "memory_house_sweep_settlement", "daily_dungeon_main", "daily_dungeon_settlement", "kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading"]:
                 return {
                     "intent": "返回主界面以寻找任务页",
                     "action": "tap",
