@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 14:52:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/tasks/resource_warehouse.py` L10-69 -> (Deleted) (`+0 -60`) (Remove all diamond checks and 80 diamonds safety rails to simplify resource warehouse collection script)
+- `c:/Users/work/Desktop/daily_task/run_dashboard.bat` L3-6 (`+4 -0`) (Inject automated cleanup for background web_dashboard.py python processes to prevent ports conflict)
+- `c:/Users/work/Desktop/daily_task/config.json` L247 -> L247 (`+1 -1`) (Increase max_steps_per_task from 50 to 100 to avoid premature guardrail exits)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L17 -> L17 (`+1 -1`) (Increase default max_steps_per_task from 20 to 100)
+- `c:/Users/work/Desktop/daily_task/config.json` L248 -> L248 (`+1 -1`) (Increase max_run_seconds from 900 to 2700 to prevent execution timeout)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L18 -> L18 (`+1 -1`) (Increase default max_run_seconds from 900 to 2700)
+- `c:/Users/work/Desktop/daily_task/config.json` L217 -> L217 (`+4 -0`) (Add single_sweep_point coordinate to daily_dungeon)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L133 -> L133 (`+1 -0`) (Add single_sweep_point default value to DEFAULT_DAILY_DUNGEON_CONFIG)
+- `c:/Users/work/Desktop/daily_task/tasks/daily_dungeon.py` L31-36 -> L31-41 (`+7 -2`) (Automatically switch to single_sweep_point when one-key sweep is not unlocked, matching only precise long term "一键扫荡" to prevent false positives)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L531-576 -> L531-572 (`+7 -11`) (Relocate btnScanDevice to the button group and hide the emulator connect manager card to simplify UI without breaking JS references)
+
 ## [Unreleased] - 2026-06-21 03:15:00 (CST)
 
 ### Changed

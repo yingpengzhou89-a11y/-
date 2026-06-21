@@ -146,7 +146,7 @@
             "x": 640,
             "y": 650
         },
-        "max_free_challenges": 5
+        "max_free_challenges": 3
     },
     "warehouse": {
         "page_keywords": [
@@ -167,7 +167,7 @@
             "x": 1106,
             "y": 137
         },
-        "max_collect_actions": 4
+        "max_collect_actions": 3
     },
     "guild_donation": {
         "donation_entry_point": {
@@ -214,6 +214,10 @@
             "x": 745,
             "y": 666
         },
+        "single_sweep_point": {
+            "x": 858,
+            "y": 666
+        },
         "close_point": {
             "x": 400,
             "y": 250
@@ -244,8 +248,8 @@
         "max_actions": 1
     },
     "guardrails": {
-        "max_steps_per_task": 50,
-        "max_run_seconds": 900,
+        "max_steps_per_task": 100,
+        "max_run_seconds": 2700,
         "min_confidence": 0.65,
         "max_unchanged_screens": 3,
         "max_target_search_scrolls": 6,

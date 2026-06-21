@@ -28,11 +28,16 @@ def run_task(runner, observation):
             "risk": "low"
         }
 
-    # 3. 正常扫荡点击
+    # 3. 执行扫荡
+    target_point = dungeon_config.get("sweep_point")
+    # 如果页面检测不到“一键扫荡”按钮，说明未解锁，使用单次扫荡坐标
+    if not text_contains_any(page_text, ["一键扫荡"]):
+        target_point = dungeon_config.get("single_sweep_point") or {"x": 858, "y": 666}
+
     return {
         "intent": f"日常副本执行扫荡第{sweep_actions + 1}次",
         "action": "tap",
-        "target": dungeon_config["sweep_point"],
+        "target": target_point,
         "confidence": 0.85,
         "risk": "low"
     }

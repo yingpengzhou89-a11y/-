@@ -1,5 +1,9 @@
 @echo off
 cd /d "%~dp0"
+
+echo Cleaning up duplicate background processes...
+powershell -Command "Get-CimInstance Win32_Process -Filter \"name='python.exe' and CommandLine like '%%web_dashboard.py%%'\" | Stop-Process -Force" 2>nul
+
 set PYTHONIOENCODING=utf-8
 set PYTHONUTF8=1
 title Daily Dashboard

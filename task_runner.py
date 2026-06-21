@@ -14,8 +14,8 @@ from task_detector import detect_task_page, merge_task_config, text_contains_any
 
 
 DEFAULT_GUARDRAILS = {
-    "max_steps_per_task": 20,
-    "max_run_seconds": 900,
+    "max_steps_per_task": 100,
+    "max_run_seconds": 2700,
     "min_confidence": 0.65,
     "max_unchanged_screens": 3,
     "max_target_search_scrolls": 6,
@@ -130,6 +130,7 @@ def merge_memory_house_config(app_config):
 DEFAULT_DAILY_DUNGEON_CONFIG = {
     "page_keywords": ["日常副本", "经验副本", "金币副本", "碎片副本", "装备副本", "刻印副本"],
     "sweep_point": {"x": 745, "y": 666},
+    "single_sweep_point": {"x": 858, "y": 666},
     "close_point": {"x": 400, "y": 250},
     "back_point": {"x": 324, "y": 39},
     "max_sweep_actions": 2
