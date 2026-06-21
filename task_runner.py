@@ -900,7 +900,7 @@ class TaskRunner:
                 max_scrolls = int(self.guardrails.get("max_target_search_scrolls", 6))
             else:
                 scroll_intent = "滚动任务列表寻找未完成日常任务"
-                max_scrolls = 4
+                max_scrolls = int(self.guardrails.get("max_list_search_scrolls", 8))
 
             # 使用实例属性记录当前在任务页连续滑动的次数，防止跨任务被错误累加
             scroll_count = self.daily_page_swipe_count

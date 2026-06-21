@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 20:58:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L895-910 -> L900-905 (`+5 -5`) (Increase max everyday tasks list scrolls from 4 to 8 to avoid premature stop before bottom tasks show up)
+
 ## [Unreleased] - 2026-06-21 20:20:00 (CST)
 
 ### Fixed
