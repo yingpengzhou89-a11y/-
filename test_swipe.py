@@ -35,15 +35,15 @@ def main():
     DEFAULT_X1 = 700
     DEFAULT_Y1 = 550
     DEFAULT_X2 = 700
-    DEFAULT_Y2 = 365
+    DEFAULT_Y2 = 280
     DEFAULT_DURATION = 1000
 
     print("\n[使用说明]")
-    print("- 直接回车或输入 'd': 执行默认滑动参数 (700 550 -> 700 365, 持续 1000ms)")
+    print("- 直接回车或输入 'd': 执行默认滑动参数 (700 550 -> 700 280, 持续 1000ms)")
     print("- 输入单个数字 (如 '400'): 自定义滑屏终点 y2 (y1默认为550, 持续1000ms)")
     print("- 输入两个数字 (如 '400 600'): 自定义终点 y2 和滑动时长 duration_ms")
-    print("- 输入三个数字 (如 '550 365 1000'): 自定义 y1 y2 和 duration_ms")
-    print("- 输入五个数字 (如 '700 550 700 365 1000'): 完整指定 x1 y1 x2 y2 duration_ms")
+    print("- 输入三个数字 (如 '550 280 1000'): 自定义 y1 y2 和 duration_ms")
+    print("- 输入五个数字 (如 '700 550 700 280 1000'): 完整指定 x1 y1 x2 y2 duration_ms")
     print("- 输入 'q' 或 'exit': 退出程序\n")
 
     while True:

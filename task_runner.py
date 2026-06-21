@@ -909,10 +909,21 @@ class TaskRunner:
             # 使用实例属性记录当前在任务页连续滑动的次数，防止跨任务被错误累加
             scroll_count = self.daily_page_swipe_count
 
+            # 检测是否已经触底：如果上一次动作是向下滚动寻找任务，且这一帧画面没有改变，说明已触底
+            last_action_is_down_swipe = False
+            if self.history:
+                last_dec = self.history[-1].get("decision", {})
+                if last_dec.get("action") == "swipe" and "寻找" in last_dec.get("intent", "") and "向上" not in last_dec.get("intent", ""):
+                    last_action_is_down_swipe = True
+            
+            if last_action_is_down_swipe and self.unchanged_count >= 1:
+                self.daily_page_swipe_count = max_scrolls
+                scroll_count = max_scrolls
+
             # 在没有可做前往任务且滑动次数未超限前，继续向下滑动搜寻
             if scroll_count < max_scrolls:
                 y1_val = 550
-                y2_val = 365
+                y2_val = 280
                 if target_task:
                     claimed_or_rewarded = (
                         self.has_decision("领取已完成任务奖励")
@@ -954,6 +965,23 @@ class TaskRunner:
                         "confidence": 0.9,
                         "risk": "low"
                     }
+
+            # 如果当前屏没有可领奖的任务，但之前曾向下滑动过，说明可领奖任务可能在上方，需要向上划回去
+            if not has_claimable_task and self.daily_page_swipe_count > 0:
+                self.daily_page_swipe_count -= 1  # 逐渐递减滑动计数以逐步回滑
+                return {
+                    "intent": "当前屏无领奖按钮，向上滑动以寻找已完成任务奖励",
+                    "action": "swipe",
+                    "target": {
+                        "x1": 700,
+                        "y1": 365,
+                        "x2": 700,
+                        "y2": 550,
+                        "duration_ms": 800
+                    },
+                    "confidence": 0.75,
+                    "risk": "low"
+                }
 
             # ------------------------------------------------------------
             # 第五阶段：若无日常领奖任务，领取日常活跃度宝箱并安全停机
