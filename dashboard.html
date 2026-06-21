@@ -578,7 +578,7 @@
             </div>
 
             <!-- 参数配置面板 -->
-            <div class="card">
+            <div class="card" style="flex-grow: 1;">
                 <h2>日常任务参数配置 <span id="saveStatus" style="color: var(--success); font-weight: bold; display: none;">已保存</span></h2>
                 <div style="display: flex; flex-direction: column; gap: 16px;">
                     <div>
@@ -621,12 +621,20 @@
                 <div style="display: flex; flex-direction: column; gap: 16px; font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
                     <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
                         <div style="display: flex; align-items: flex-start; gap: 8px;">
-                            <span style="color: var(--danger); font-weight: bold; margin-top: 2px;">⚠️</span>
-                            <span><strong>忽略执行任务</strong>：本系统会自动忽略低性价比的 <strong>“库克利亚监狱战斗3次”</strong>、<strong>“镜像试炼战斗3次”</strong> 和 <strong>“强化装备1次”</strong> 这三个日常任务，并在扫描任务列表时自动滑屏跳过它们，请不要在前端勾选或在日常列表执意寻找它们。</span>
+                            <span style="color: var(--primary); font-weight: bold; margin-top: 2px;">ℹ️</span>
+                            <span><strong>委托任务手动</strong>：<strong>“接取3次委托任务”</strong> 奖励随机，本系统不负责跑它。请务必在运行前<strong style="color: var(--primary);">人为手动接取并做完</strong>。</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px;">
                             <span style="color: var(--primary); font-weight: bold; margin-top: 2px;">ℹ️</span>
-                            <span><strong>委托任务说明</strong>：<strong>“接取3次委托任务”</strong> 因奖励随机性较大，强烈建议您在每日上线时<strong>人为手动接取并做完</strong>。本系统在开启后，仅在日常任务页检测到其已达标时自动帮您核销领奖；若检测到其未做完，系统会自动安全挂起停机以防误触。</span>
+                            <span><strong>高招跳过动画</strong>：请在游戏内的高级招募页面中，<strong style="color: var(--primary);">手动勾选“跳过招募动画”</strong>。</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px;">
+                            <span style="color: var(--primary); font-weight: bold; margin-top: 2px;">ℹ️</span>
+                            <span><strong>竞技场自动挑战</strong>：请在游戏内竞技场挑战页面，<strong style="color: var(--primary);">手动勾选“自动战斗”</strong>。</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px;">
+                            <span style="color: var(--primary); font-weight: bold; margin-top: 2px;">ℹ️</span>
+                            <span><strong>配置日常参数</strong>：请在下方配置卡片中<strong style="color: var(--primary);">配好三项日常参数</strong>，点击“保存全局配置”后，再开始一键托管。</span>
                         </div>
                     </div>
                 </div>
