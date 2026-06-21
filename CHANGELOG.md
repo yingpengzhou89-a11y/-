@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 22:56:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L915 -> L915 (`+1 -1`) (Change default downward scroll y2 endpoint from 360 to 365)
+- `c:/Users/work/Desktop/daily_task/test_swipe.py` L38-46 -> L38-46 (`+5 -5`) (Change DEFAULT_Y2 parameters and instructions to 365)
+
 ## [Unreleased] - 2026-06-21 22:43:00 (CST)
 
 ### Added

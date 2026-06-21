@@ -912,7 +912,7 @@ class TaskRunner:
             # 在没有可做前往任务且滑动次数未超限前，继续向下滑动搜寻
             if scroll_count < max_scrolls:
                 y1_val = 550
-                y2_val = 360
+                y2_val = 365
                 if target_task:
                     claimed_or_rewarded = (
                         self.has_decision("领取已完成任务奖励")
