@@ -244,6 +244,7 @@ class TaskRunner:
         self.unchanged_count = 0
         self.active_task_go_clicked = False
         self.active_target_task = None
+        self.daily_page_swipe_count = 0
         self.arena_last_auto_try_count = -1
         self.arena_task_complete = False
         self.arena_no_action_retry_count = 0
@@ -882,6 +883,7 @@ class TaskRunner:
             if go_task_to_execute:
                 self.active_task_go_clicked = True  # 设置本轮已点击“前往”状态
                 self.active_target_task = go_task_to_execute["title"]  # 记录当前点击前往的任务
+                self.daily_page_swipe_count = 0  # 点击前往时重置当前列表滑动计数器
                 return {
                     "intent": f"前往执行未完成任务: {go_task_to_execute['title']}",
                     "action": "tap",
@@ -900,7 +902,8 @@ class TaskRunner:
                 scroll_intent = "滚动任务列表寻找未完成日常任务"
                 max_scrolls = 4
 
-            scroll_count = self.decision_count(action="swipe", intent_contains=scroll_intent)
+            # 使用实例属性记录当前在任务页连续滑动的次数，防止跨任务被错误累加
+            scroll_count = self.daily_page_swipe_count
 
             # 在没有可做前往任务且滑动次数未超限前，继续向下滑动搜寻
             if scroll_count < max_scrolls:
@@ -914,6 +917,8 @@ class TaskRunner:
                     if claimed_or_rewarded:
                         y1_val = 300
                         y2_val = 610
+
+                self.daily_page_swipe_count += 1  # 累加本次连续滑动次数
 
                 return {
                     "intent": scroll_intent,
@@ -1013,6 +1018,7 @@ class TaskRunner:
 
         # 3. 如果不在日常任务页
         if not observation.get("is_task_page"):
+            self.daily_page_swipe_count = 0  # 不在任务页时，重置日常列表滑动计数器
             page_type = self.classify_current_page(observation)
             effective_target = target_task or self.active_target_task
             

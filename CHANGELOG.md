@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-21 20:20:00 (CST)
+
+### Fixed
+- `c:/Users/work/Desktop/daily_task/task_detector.py` L155-195 -> L155-213 (`+29 -11`) (Replace fixed-height row slicing with dynamic Y-clustering to group text items of task page adaptively)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L244-1020 -> L244-1024 (`+7 -1`) (Fix premature claim by introducing local daily_page_swipe_count to isolate scrolling count from cumulative global run history)
+
 ## [Unreleased] - 2026-06-21 19:13:00 (CST)
 
 ### Changed

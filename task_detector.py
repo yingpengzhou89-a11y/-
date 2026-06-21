@@ -152,19 +152,37 @@ def detect_task_page(image, app_config):
     region = normalize_box(task_config["task_list_region"])
     items = rapidocr_items(image, app_config)
     page_text = "".join(item["text"] for item in items)
-    rows = {}
-
+    # 过滤区域内的文本项
+    valid_items = []
     for item in items:
-        if not item_in_box(item, region):
-            continue
+        if item_in_box(item, region):
+            valid_items.append(item)
 
-        index = row_index_for_item(item, region.y1, int(task_config["row_height"]))
-        rows.setdefault(index, []).append(item)
+    # 按照 y 坐标排序
+    valid_items.sort(key=lambda x: x["y"])
+
+    # 动态 Y 坐标聚类，阈值设为 50 像素
+    threshold = 50
+    clustered_rows = []
+    for item in valid_items:
+        placed = False
+        for row in clustered_rows:
+            avg_y = sum(x["y"] for x in row) / len(row)
+            if abs(item["y"] - avg_y) < threshold:
+                row.append(item)
+                placed = True
+                break
+        if not placed:
+            clustered_rows.append([item])
+
+    # 按照每行平均 y 坐标升序排列，建立有序的日常任务行索引
+    clustered_rows.sort(key=lambda r: sum(x["y"] for x in r) / len(r))
 
     tasks = []
 
-    for index in sorted(rows):
-        row_items = sorted(rows[index], key=lambda item: (round(item["y"] / 10), item["x"]))
+    for index, row_items in enumerate(clustered_rows):
+        # 按照 x 坐标升序排列，使同行文字片段顺序拼接
+        row_items.sort(key=lambda item: item["x"])
         row_text = "".join(item["text"] for item in row_items)
         title_items = [
             item for item in row_items
@@ -190,8 +208,8 @@ def detect_task_page(image, app_config):
         title = "".join(item["text"] for item in title_items).strip()
         button_text = "".join(item["text"] for item in button_items).strip()
         button_state = classify_button(button_text, task_config)
-        center_y = region.y1 + index * int(task_config["row_height"]) + int(task_config["row_height"]) / 2
-        best_y = int(center_y)
+        avg_row_y = sum(item["y"] for item in row_items) / len(row_items)
+        best_y = int(avg_row_y)
         if button_items:
             valid_button_items = [
                 item for item in button_items
