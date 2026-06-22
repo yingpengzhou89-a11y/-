@@ -853,7 +853,7 @@ class TaskRunner:
                 max_scrolls = int(self.guardrails.get("max_target_search_scrolls", 6))
             else:
                 scroll_intent = "滚动任务列表寻找未完成日常任务"
-                max_scrolls = int(self.guardrails.get("max_list_search_scrolls", 8))
+                max_scrolls = int(self.guardrails.get("max_list_search_scrolls", 6))
 
             # 使用实例属性记录当前在任务页连续滑动的次数，防止跨任务被错误累加
             scroll_count = self.daily_page_swipe_count
@@ -905,25 +905,29 @@ class TaskRunner:
             # 第四阶段：当滑动达到上限且没有 go 任务时，统一执行 claim 领奖
             # ------------------------------------------------------------
             has_claimable_task = False
-            for task in tasks:
-                if target_task and target_task not in task["title"]:
-                    continue
-                if task["button_state"] == "claim" or (task["done"] and task["button_state"] not in ("go", "claimed")):
-                    has_claimable_task = True
-                    return {
-                        "intent": f"领取已完成任务奖励: {task['title']}",
-                        "action": "claim",
-                        "target": task["action_point"],
-                        "confidence": 0.9,
-                        "risk": "low"
-                    }
+            # 增加保护：如果在本次日常大循环中已经点击过一次领奖，为了防止空点击，不再重复寻找 claim
+            already_claimed = self.has_decision("领取已完成任务奖励")
+            
+            if not already_claimed:
+                for task in tasks:
+                    if target_task and target_task not in task["title"]:
+                        continue
+                    if task["button_state"] == "claim" or (task["done"] and task["button_state"] not in ("go", "claimed")):
+                        has_claimable_task = True
+                        return {
+                            "intent": f"领取已完成任务奖励: {task['title']}",
+                            "action": "claim",
+                            "target": task["action_point"],
+                            "confidence": 0.9,
+                            "risk": "low"
+                        }
 
-            # 如果当前屏没有可领奖的任务，但之前曾向下滑动过，且回滑次数未超限（最多回滑2次即可扫描全部漏掉的任务），向上划回去
-            if not has_claimable_task and self.daily_page_swipe_count > 0 and self.daily_page_up_swipe_count < 2:
+            # 如果当前屏没有可领奖的任务，但之前曾向下滑动过，且回滑次数未超限（仅允许向上回滑 1 次），向上划回去
+            if not already_claimed and not has_claimable_task and self.daily_page_swipe_count > 0 and self.daily_page_up_swipe_count < 1:
                 self.daily_page_swipe_count -= 1  # 逐渐递减滑动计数以逐步回滑
                 self.daily_page_up_swipe_count += 1
                 return {
-                    "intent": "当前屏无领奖按钮，向上滑动以寻找已完成任务奖励",
+                    "intent": "当前屏无领奖按钮，向上滑动 1 次以寻找已完成日常奖励",
                     "action": "swipe",
                     "target": {
                         "x1": 700,
@@ -939,35 +943,24 @@ class TaskRunner:
             # ------------------------------------------------------------
             # 第五阶段：若无日常领奖任务，领取日常活跃度宝箱并安全停机
             # ------------------------------------------------------------
-            # 解析当前活跃度
-            active_points = 0
-            import re
-            match = re.search(r'(\d+)\s*/\s*100', page_text)
-            if match:
-                try:
-                    active_points = int(match.group(1))
-                except ValueError:
-                    pass
-
+            # 采用盲点扫尾策略：依次尝试点击 4 个日常活跃度宝箱坐标各 1 次（已领过的在历史里自动过滤跳过），能领则领
             chests = task_page_config.get("active_chests") or [
                 {"x": 624, "y": 144},
                 {"x": 800, "y": 144},
                 {"x": 965, "y": 144},
                 {"x": 1135, "y": 144}
             ]
-            # 只有当活跃度达到或超过 100 时，才允许领取宝箱
-            if active_points >= 100:
-                for index, chest in enumerate(chests):
-                    chest_name = f"第{index + 1}个"
-                    chest_intent = f"领取日常活跃度宝箱{chest_name}"
-                    if not self.has_decision(chest_intent):
-                        return {
-                            "intent": chest_intent,
-                            "action": "tap",
-                            "target": chest,
-                            "confidence": 0.85,
-                            "risk": "low"
-                        }
+            for index, chest in enumerate(chests):
+                chest_name = f"第{index + 1}个"
+                chest_intent = f"领取日常活跃度宝箱{chest_name}"
+                if not self.has_decision(chest_intent):
+                    return {
+                        "intent": chest_intent,
+                        "action": "tap",
+                        "target": chest,
+                        "confidence": 0.85,
+                        "risk": "low"
+                    }
 
             # 安全停机逻辑
             if not target_task:

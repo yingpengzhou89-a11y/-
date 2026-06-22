@@ -372,6 +372,7 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
             except ValueError:
                 params = {}
                 
+            print(f"[API] Received /api/run request with params: {params}")
             device_id = params.get("device_id", "").strip()
             if not device_id:
                 try:

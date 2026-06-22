@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-23 01:20:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L798-808 -> L798-808 (`+1 -1`) (Display dynamic active running task target in statusText instead of static text)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L854-858 -> L854-858 (`+1 -1`) (Lower default max_list_search_scrolls fallback limit from 8 to 6)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L905-971 -> L905-969 (`+18 -36`) (Refactor daily claim phase to limit up swipes to 1, lock duplicate claims, and blind sequentially tap chests)
+
+## [Unreleased] - 2026-06-23 01:10:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L660 -> L660-666 (`+6 -1`) (Close unclosed div tags for log-container to repair page DOM layout tree)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L822-824 -> L824-827 (`+2 -0`) (Disable peak arena button during task run to avoid visual response confusion)
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L370-375 -> L372-376 (`+1 -0`) (Add API debug output to print incoming params at run endpoint)
+
 ## [Unreleased] - 2026-06-23 00:46:00 (CST)
 
 ### Added
