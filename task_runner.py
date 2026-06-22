@@ -667,6 +667,30 @@ class TaskRunner:
         if text_contains_any(page_text, qualifier_keywords):
             return "arena_qualifier"
 
+        # 巅峰赛购买弹窗
+        if text_contains_any(page_text, ["购买次数"]) and text_contains_any(page_text, ["总价", "拥有"]) and text_contains_any(page_text, ["确认", "取消"]):
+            return "peak_arena_buy"
+
+        # 巅峰赛排位主页
+        if text_contains_any(page_text, ["开始匹配"]) and text_contains_any(page_text, ["匹配次数", "每日任务"]):
+            return "peak_arena_rank"
+
+        # 巅峰赛布阵界面
+        if text_contains_any(page_text, ["VS", "一键布阵"]) or (text_contains_any(page_text, ["挑战"]) and not text_contains_any(page_text, ["开始匹配", "赛季奖励", "奖励商店", "日常商店"])):
+            return "peak_arena_formation"
+
+        # 巅峰赛战斗进行中
+        if text_contains_any(page_text, ["跳过", "跳过战斗"]) and not text_contains_any(page_text, ["开始匹配", "挑战"]):
+            return "peak_arena_battle"
+
+        # 巅峰赛对战结算页
+        if text_contains_any(page_text, ["返回"]) and not text_contains_any(page_text, ["开始匹配", "匹配次数", "每日任务", "日常任务", "任务", "角色", "背包"]):
+            return "peak_arena_settlement"
+
+        # 巅峰竞技场选择主页
+        if text_contains_any(page_text, ["排位赛"]) and text_contains_any(page_text, ["巅峰赛"]) and text_contains_any(page_text, ["巅峰竞技场"]):
+            return "peak_arena_home"
+
         # 8. 竞技场选择大厅
         main_keywords = arena_config.get("main_keywords") or ["本服竞技场", "跨服竞技场", "巅峰竞技场"]
         if text_contains_any(page_text, main_keywords):
@@ -743,6 +767,17 @@ class TaskRunner:
 
         # 2. 如果在日常任务页：只做“寻找任务”、“前往”或“领奖”
         if observation.get("is_task_page"):
+            if target_task and ("巅峰" in target_task or "排位" in target_task):
+                return {
+                    "intent": "巅峰赛任务不处于日常任务列表页，直接点击小房子返回以从主界面进入",
+                    "action": "tap",
+                    "target": {
+                        "x": 324,
+                        "y": 40
+                    },
+                    "confidence": 0.95,
+                    "risk": "low"
+                }
             self.active_task_go_clicked = False  # 成功回到任务页，重置本轮“前往”状态
             self.active_target_task = None       # 重置当前临时目标任务
 
@@ -956,6 +991,17 @@ class TaskRunner:
                         "confidence": 1,
                         "risk": "low"
                     }
+                if target_task and ("巅峰" in target_task or "排位" in target_task):
+                    return {
+                        "intent": "巅峰赛任务不在日常任务页，点击小房子退回以从主界面进入",
+                        "action": "tap",
+                        "target": {
+                            "x": 324,
+                            "y": 40
+                        },
+                        "confidence": 0.9,
+                        "risk": "low"
+                    }
                 return {
                     "intent": f"未找到目标任务，停止: {target_task}",
                     "action": "stop",
@@ -987,6 +1033,10 @@ class TaskRunner:
                     "arena_main", "arena_qualifier", "arena_challenge_list", "arena_formation", "arena_battle", "arena_settlement"
                 ]:
                     is_matched_page = True
+                elif ("巅峰" in effective_target or "排位" in effective_target) and page_type in [
+                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"
+                ]:
+                    is_matched_page = True
                 elif "捐献" in effective_target and page_type in ["guild_main", "guild_donation_select"]:
                     is_matched_page = True
                 elif "商店" in effective_target and page_type in ["shop_main", "shop_buy_settlement"]:
@@ -1004,7 +1054,7 @@ class TaskRunner:
             if effective_target and is_go_triggered:
                 from tasks import (
                     login, commission, friendship, recruitment, resource_warehouse, arena, guild_donation,
-                    shop_refresh, memory_house, daily_dungeon, kakuja_hunt
+                    shop_refresh, memory_house, daily_dungeon, kakuja_hunt, peak_arena
                 )
                 # 日常登录日常逻辑 (无需具体子页面逻辑，由通用逻辑直接领奖)
                 if "登录" in effective_target:
@@ -1041,6 +1091,14 @@ class TaskRunner:
                     "arena_main", "arena_qualifier", "arena_challenge_list", "arena_formation", "arena_battle", "arena_settlement"
                 ]:
                     decision = arena.run_task(self, observation)
+                    if decision:
+                        return decision
+
+                # 巅峰赛日常页面逻辑
+                elif ("巅峰" in effective_target or "排位" in effective_target) and page_type in [
+                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"
+                ]:
+                    decision = peak_arena.run_task(self, observation)
                     if decision:
                         return decision
 
@@ -1103,7 +1161,19 @@ class TaskRunner:
                 }
 
             # 如果当前已经处于主界面（大厅），点击日常入口图标 (50, 328) 进入日常任务
+            # 特例：若目标任务是巅峰赛/排位赛，由于其不出现在大厅，直接从主界面进入竞技场 (282, 357)
             if page_type == "main_city":
+                if target_task and ("巅峰" in target_task or "排位" in target_task):
+                    return {
+                        "intent": "从主界面直接前往竞技场大厅(巅峰赛入口)",
+                        "action": "tap",
+                        "target": {
+                            "x": 282,
+                            "y": 357
+                        },
+                        "confidence": 0.9,
+                        "risk": "low"
+                    }
                 return {
                     "intent": "从主界面打开任务页",
                     "action": "tap",
@@ -1139,7 +1209,7 @@ class TaskRunner:
                 }
 
             # 如果处于其他任何任务子页面 (如资格赛主页、布阵等) 但还没前往，一律点顶部房子图标 (324, 39) 退回大厅
-            if page_type in ["arena_main", "arena_qualifier", "arena_formation", "friendship", "unknown", "guild_main", "guild_donation_select", "shop_main", "shop_buy_settlement", "memory_house_main", "memory_house_sweep_settlement", "daily_dungeon_main", "daily_dungeon_settlement", "kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading"]:
+            if page_type in ["arena_main", "arena_qualifier", "arena_formation", "friendship", "unknown", "guild_main", "guild_donation_select", "shop_main", "shop_buy_settlement", "memory_house_main", "memory_house_sweep_settlement", "daily_dungeon_main", "daily_dungeon_settlement", "kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"]:
                 return {
                     "intent": "返回主界面以寻找任务页",
                     "action": "tap",

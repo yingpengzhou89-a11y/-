@@ -135,7 +135,7 @@ def capture_idle_screenshot(device_id):
     except Exception as exc:
         print(f"[{device_id}] 空闲状态截图失败: {exc}")
 
-def run_automation_thread(device_id, tasks):
+def run_automation_thread(device_id, tasks, target_task=None):
     lock = get_device_lock(device_id)
     with lock:
         state = get_or_create_device_state(device_id)
@@ -144,8 +144,12 @@ def run_automation_thread(device_id, tasks):
         state["logs"] = []
         state["should_stop"] = False
         
-        log_to_device(device_id, "开始一键托管日常任务大循环...")
-        state["target"] = "自动托管日常"
+        if target_task:
+            log_to_device(device_id, f"开始独立执行 {target_task} 任务...")
+            state["target"] = target_task
+        else:
+            log_to_device(device_id, "开始一键托管日常任务大循环...")
+            state["target"] = "自动托管日常"
         
         app_config = load_dashboard_config(device_id)
         runner = TaskRunner(app_config, BASE_DIR, dry_run=False)
@@ -155,7 +159,7 @@ def run_automation_thread(device_id, tasks):
         runner.logger = DashboardLogger(BASE_DIR, runner.logger.run_id, device_id)
         
         try:
-            result = runner.run(target_task=None)
+            result = runner.run(target_task=target_task)
             
             if result.get("status") == "blocked":
                 log_to_device(device_id, f"日常大循环触发阻断或发生异常，运行中断。原因: {result.get('reason')}")
@@ -186,6 +190,52 @@ def run_automation_thread(device_id, tasks):
         except Exception as exc:
             state["status"] = "blocked"
             log_to_device(device_id, f"日常任务发生未知异常: {exc}")
+
+def run_peak_arena_thread(device_id):
+    lock = get_device_lock(device_id)
+    with lock:
+        state = get_or_create_device_state(device_id)
+        state["status"] = "running"
+        state["steps"] = 0
+        state["logs"] = []
+        state["should_stop"] = False
+        
+        log_to_device(device_id, "开始执行巅峰赛挑战独立程序...")
+        state["target"] = "巅峰赛挑战"
+        
+        app_config = load_dashboard_config(device_id)
+        runner = TaskRunner(app_config, BASE_DIR, dry_run=False)
+        state["run_id"] = runner.logger.run_id
+        
+        runner.logger = DashboardLogger(BASE_DIR, runner.logger.run_id, device_id)
+        
+        try:
+            result = runner.run(target_task="巅峰")
+            
+            if result.get("status") == "blocked":
+                log_to_device(device_id, f"巅峰赛挑战触发阻断或发生异常，运行中断。原因: {result.get('reason')}")
+                state["status"] = "blocked"
+            elif result.get("status") == "stopped":
+                reason = result.get("reason")
+                log_to_device(device_id, f"巅峰赛挑战正常运行完毕。结束原因: {reason}")
+                state["status"] = "stopped"
+            else:
+                state["status"] = "stopped"
+                log_to_device(device_id, f"巅峰赛挑战结束，状态: {result.get('status')}")
+                
+            log_to_device(device_id, "巅峰赛独立自动化流水线运行完成。")
+        except GuardrailError as exc:
+            state["status"] = "blocked"
+            log_to_device(device_id, f"运行触发安全保护，执行中断。原因: {exc}")
+            result = {
+                "status": "blocked",
+                "reason": str(exc),
+                "run_dir": runner.logger.path
+            }
+            runner.logger.event("blocked", result)
+        except Exception as exc:
+            state["status"] = "blocked"
+            log_to_device(device_id, f"运行发生未知异常: {exc}")
 
 class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -368,7 +418,11 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"success": False, "reason": f"该设备 {device_id} 的日常任务已在运行中"}, ensure_ascii=False).encode("utf-8"))
                 return
                 
-            t = threading.Thread(target=run_automation_thread, args=(device_id, tasks))
+            target_task = params.get("target_task", None)
+            if target_task == "巅峰":
+                t = threading.Thread(target=run_peak_arena_thread, args=(device_id,))
+            else:
+                t = threading.Thread(target=run_automation_thread, args=(device_id, tasks, target_task))
             t.daemon = True
             t.start()
             

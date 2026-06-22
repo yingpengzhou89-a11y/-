@@ -543,6 +543,11 @@
                         <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
                         自动搜寻端口
                     </button>
+
+                    <button id="btnPeakArena" class="btn" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #ffffff; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); margin-top: 4px;" onclick="runPeakArena()">
+                        <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.6 20 4 16.4 4 12S7.6 4 12 4 20 7.6 20 12 16.4 20 12 20M12 8L16 12L12 16V13H8V11H12V8Z"/></svg>
+                        独立运行巅峰赛挑战
+                    </button>
                 </div>
             </div>
             
@@ -859,6 +864,28 @@
             .then(data => {
                 if (data.success) {
                     showToast(`启动成功！设备 ${activeDeviceId} 开始日常托管。`, 'success');
+                    updateStatus();
+                } else {
+                    showToast('运行失败: ' + data.reason, 'error');
+                }
+            })
+            .catch(err => showToast('运行发生错误: ' + err, 'error'));
+        }
+
+        function runPeakArena() {
+            if (!activeDeviceId) {
+                showToast('当前未选中任何活跃的模拟器设备', 'error');
+                return;
+            }
+            fetch('/api/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ device_id: activeDeviceId, target_task: '巅峰' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`启动成功！设备 ${activeDeviceId} 开始独立执行巅峰赛挑战。`, 'success');
                     updateStatus();
                 } else {
                     showToast('运行失败: ' + data.reason, 'error');

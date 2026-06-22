@@ -1,5 +1,44 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-23 00:46:00 (CST)
+
+### Added
+- `c:/Users/work/Desktop/daily_task/peak_arena_run.py` [NEW] (`+27 -0`) (Create peak_arena_run.py as an isolated Peak Arena task entry script)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L194 -> L194-240 (`+46 -0`) (Add independent run_peak_arena_thread execution loop for Peak Arena)
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L421-424 -> L467-473 (`+6 -3`) (Dispatch dedicated run_peak_arena_thread for peak task requests)
+
+## [Unreleased] - 2026-06-23 00:37:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L769 -> L769-780 (`+11 -0`) (Immediately intercept daily task page flow for Peak Arena target task to return to main city)
+
+## [Unreleased] - 2026-06-23 00:33:00 (CST)
+
+### Added
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L546-550 (`+5 -0`) (Add premium gradient style button for executing Peak Arena independently)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L874-896 (`+22 -0`) (Add runPeakArena JS logic to trigger task target via API POST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L138-158 -> L138-162 (`+5 -1`) (Support and pass target_task parameter in run_automation_thread)
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L375-377 -> L379-382 (`+4 -3`) (Extract target_task from params in run API endpoint)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L983-985 -> L987-998 (`+11 -0`) (Allow fallback to main city for peak arena target task on daily task page)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1141-1152 -> L1157-1175 (`+12 -0`) (Directly route to arena lobby from main city for peak arena target task)
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L177-198 -> L177-210 (`+13 -0`) (Introduce time-based safety delay lock for battle skips in peak_arena.py)
+
+## [Unreleased] - 2026-06-22 21:35:00 (CST)
+
+### Added
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` [NEW] (`+243 -0`) (Create peak_arena.py to implement Peak Arena daily task automation state machine)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L670-674 -> L670-698 (`+24 -0`) (Add peak arena page classification rules to classify_current_page)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1010-1014 -> L1013-1021 (`+4 -0`) (Add peak arena target page matching rules)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1033-1036 -> L1041-1044 (`+1 -1`) (Import peak_arena tasks module)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1067-1074 -> L1075-1090 (`+8 -0`) (Add peak arena task routing branch to execute_decision)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1178 -> L1194 (`+1 -1`) (Extend navigation safety bypass list with peak arena page classifications)
+
 ## [Unreleased] - 2026-06-22 16:32:00 (CST)
 
 ### Changed
