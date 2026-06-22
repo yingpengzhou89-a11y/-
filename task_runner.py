@@ -149,7 +149,10 @@ DEFAULT_KAKUJA_HUNT_CONFIG = {
     "skip_point": {"x": 336, "y": 40},
     "confirm_point": {"x": 965, "y": 650},
     "back_point": {"x": 324, "y": 39},
-    "max_actions": 1
+    "max_main_challenge_attempts": 2,
+    "max_formation_boss_attempts": 2,
+    "max_skip_attempts": 2,
+    "max_victory_confirm_attempts": 3
 }
 
 
@@ -248,6 +251,7 @@ class TaskRunner:
         self.arena_last_auto_try_count = -1
         self.arena_task_complete = False
         self.arena_no_action_retry_count = 0
+        self.task_state = {}
 
     def decision_count(self, action=None, intent_contains=None, after_intent=None):
         count = 0
@@ -888,6 +892,7 @@ class TaskRunner:
                 self.active_task_go_clicked = True  # 设置本轮已点击“前往”状态
                 self.active_target_task = go_task_to_execute["title"]  # 记录当前点击前往的任务
                 self.daily_page_swipe_count = 0  # 点击前往时重置当前列表滑动计数器
+                self.task_state = {}  # 点击前往新任务时，重置所有任务显式状态机，防止跨任务状态污染
                 return {
                     "intent": f"前往执行未完成任务: {go_task_to_execute['title']}",
                     "action": "tap",

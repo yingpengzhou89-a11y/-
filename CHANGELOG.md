@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-22 10:32:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L152 -> L152-155 (`+4 -1`) (Remove max_actions and add explicit attempt limits to DEFAULT_KAKUJA_HUNT_CONFIG)
+- `c:/Users/work/Desktop/daily_task/config.json` L248 -> L248-251 (`+4 -1`) (Remove max_actions and add explicit attempt limits to config.json kakuja_hunt section)
+
+## [Unreleased] - 2026-06-22 01:25:00 (CST)
+
+### Fixed
+- `c:/Users/work/Desktop/daily_task/tasks/kakuja_hunt.py` L1-86 -> L1-179 (`+173 -80`) (Rewrite kakuja_hunt as page-transition driven explicit state machine)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L248-890 -> L248-891 (`+5 -3`) (Initialize and reset task_state for new task execution isolation)
+
 ## [Unreleased] - 2026-06-22 01:02:00 (CST)
 
 ### Changed

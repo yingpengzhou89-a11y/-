@@ -245,7 +245,10 @@
             "x": 324,
             "y": 39
         },
-        "max_actions": 1
+        "max_main_challenge_attempts": 2,
+        "max_formation_boss_attempts": 2,
+        "max_skip_attempts": 2,
+        "max_victory_confirm_attempts": 3
     },
     "guardrails": {
         "max_steps_per_task": 200,
