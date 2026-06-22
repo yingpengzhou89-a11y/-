@@ -53,7 +53,7 @@ DEFAULT_RECRUITMENT_CONFIG = {
     "free_single_keywords": ["免费"],
     "free_single_point": {"x": 512, "y": 654},
     "ten_recruit_keywords": ["招募十次", "十连", "10次"],
-    "ten_recruit_point": {"x": 766, "y": 650},
+    "ten_recruit_point": {"x": 800, "y": 650},
     "close_result_point": {"x": 513, "y": 634},
     "max_recruit_actions": 2
 }
@@ -249,9 +249,9 @@ class TaskRunner:
         self.active_target_task = None
         self.daily_page_swipe_count = 0
         self.arena_last_auto_try_count = -1
-        self.arena_task_complete = False
-        self.arena_no_action_retry_count = 0
         self.task_state = {}
+        self.daily_page_claiming = False
+        self.daily_page_up_swipe_count = 0
 
     def decision_count(self, action=None, intent_contains=None, after_intent=None):
         count = 0
@@ -281,98 +281,6 @@ class TaskRunner:
 
     def has_decision(self, intent_contains):
         return self.decision_count(intent_contains=intent_contains) > 0
-
-    def choose_recruitment_decision(self, observation, target_task=None):
-        if not target_task or "招募" not in target_task:
-            return None
-
-        page_text = observation.get("page_text") or ""
-        recruitment_config = merge_recruitment_config(self.app_config)
-
-        if not text_contains_any(page_text, recruitment_config.get("page_keywords") or []):
-            return None
-
-        if (
-            text_contains_any(page_text, ["确认", "确定"])
-            and text_contains_any(page_text, recruitment_config.get("advanced_keywords") or [])
-            and not text_contains_any(page_text, self.guardrails["forbidden_keywords"])
-        ):
-            return {
-                "intent": "确认高级招募",
-                "action": "tap",
-                "target": recruitment_config["confirm_point"],
-                "confidence": 0.7,
-                "risk": "low"
-            }
-
-        if text_contains_any(page_text, ["招募结果", "再次招募", "获得"]):
-            return {
-                "intent": "关闭招募结果页",
-                "action": "tap",
-                "target": recruitment_config["close_result_point"],
-                "confidence": 0.78,
-                "risk": "low"
-            }
-
-        if not self.has_decision("切换到高级招募"):
-            return {
-                "intent": "切换到高级招募",
-                "action": "tap",
-                "target": recruitment_config["advanced_tab_point"],
-                "confidence": 0.76,
-                "risk": "low"
-            }
-
-
-
-        single_count = self.decision_count(intent_contains="免费单抽")
-        ten_count = self.decision_count(intent_contains="十连")
-        total_recruits = single_count * 1 + ten_count * 10
-
-        recruit_actions = self.decision_count(intent_contains="执行高级招募")
-        max_recruit_actions = int(recruitment_config.get("max_recruit_actions", 2))
-
-        if total_recruits >= 3 or recruit_actions >= max_recruit_actions:
-            return {
-                "intent": "高级招募已完成或达到本轮动作上限，停止并等待回任务页领奖",
-                "action": "stop",
-                "target": {
-                    "reason": "recruitment target reached"
-                },
-                "confidence": 1,
-                "risk": "low"
-            }
-
-        if (
-            text_contains_any(page_text, recruitment_config.get("free_single_keywords") or [])
-            and not self.has_decision("执行高级招募免费单抽")
-        ):
-            return {
-                "intent": "执行高级招募免费单抽",
-                "action": "tap",
-                "target": recruitment_config["free_single_point"],
-                "confidence": 0.74,
-                "risk": "low"
-            }
-
-        if text_contains_any(page_text, recruitment_config.get("ten_recruit_keywords") or []):
-            return {
-                "intent": "执行高级招募十连",
-                "action": "tap",
-                "target": recruitment_config["ten_recruit_point"],
-                "confidence": 0.72,
-                "risk": "low"
-            }
-
-        return {
-            "intent": "高级招募页未找到免费或十连入口，停止等待人工确认",
-            "action": "stop",
-            "target": {
-                "reason": "no safe recruitment action"
-            },
-            "confidence": 1,
-            "risk": "low"
-        }
 
     def choose_arena_decision(self, observation, target_task=None):
         if not target_task or not ("竞技" in target_task or "竞技场" in target_task):
@@ -511,7 +419,6 @@ class TaskRunner:
             "从主界面打开任务页",
             "返回主界面以寻找任务页",
             "切换到高级招募",
-            "执行高级招募免费单抽",
             "执行高级招募十连",
             "确认消耗钻石进行快速采集",
             "达到80钻石消耗上限，拒绝快速采集并关闭弹窗",
@@ -892,6 +799,8 @@ class TaskRunner:
                 self.active_task_go_clicked = True  # 设置本轮已点击“前往”状态
                 self.active_target_task = go_task_to_execute["title"]  # 记录当前点击前往的任务
                 self.daily_page_swipe_count = 0  # 点击前往时重置当前列表滑动计数器
+                self.daily_page_claiming = False
+                self.daily_page_up_swipe_count = 0
                 self.task_state = {}  # 点击前往新任务时，重置所有任务显式状态机，防止跨任务状态污染
                 return {
                     "intent": f"前往执行未完成任务: {go_task_to_execute['title']}",
@@ -925,8 +834,11 @@ class TaskRunner:
                 self.daily_page_swipe_count = max_scrolls
                 scroll_count = max_scrolls
 
+            if scroll_count >= max_scrolls:
+                self.daily_page_claiming = True
+
             # 在没有可做前往任务且滑动次数未超限前，继续向下滑动搜寻
-            if scroll_count < max_scrolls:
+            if scroll_count < max_scrolls and not self.daily_page_claiming:
                 y1_val = 550
                 y2_val = 280
                 if target_task:
@@ -971,9 +883,10 @@ class TaskRunner:
                         "risk": "low"
                     }
 
-            # 如果当前屏没有可领奖的任务，但之前曾向下滑动过，说明可领奖任务可能在上方，需要向上划回去
-            if not has_claimable_task and self.daily_page_swipe_count > 0:
+            # 如果当前屏没有可领奖的任务，但之前曾向下滑动过，且回滑次数未超限（最多回滑2次即可扫描全部漏掉的任务），向上划回去
+            if not has_claimable_task and self.daily_page_swipe_count > 0 and self.daily_page_up_swipe_count < 2:
                 self.daily_page_swipe_count -= 1  # 逐渐递减滑动计数以逐步回滑
+                self.daily_page_up_swipe_count += 1
                 return {
                     "intent": "当前屏无领奖按钮，向上滑动以寻找已完成任务奖励",
                     "action": "swipe",
@@ -1056,6 +969,8 @@ class TaskRunner:
         # 3. 如果不在日常任务页
         if not observation.get("is_task_page"):
             self.daily_page_swipe_count = 0  # 不在任务页时，重置日常列表滑动计数器
+            self.daily_page_claiming = False
+            self.daily_page_up_swipe_count = 0
             page_type = self.classify_current_page(observation)
             effective_target = target_task or self.active_target_task
             
@@ -1146,7 +1061,7 @@ class TaskRunner:
                     decision = daily_dungeon.run_task(self, observation)
                     if decision:
                         return decision
-                elif ("讨伐" in effective_target or "赫者" in effective_target) and page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading"]:
+                elif ("讨伐" in effective_target or "赫者" in effective_target) and page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading", "unknown"]:
                     decision = kakuja_hunt.run_task(self, observation)
                     if decision:
                         return decision

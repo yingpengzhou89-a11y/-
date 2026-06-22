@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-22 16:32:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L56 -> L56 (`+1 -1`) (Restore default ten_recruit_point to 800, 650 in DEFAULT_RECRUITMENT_CONFIG)
+- `c:/Users/work/Desktop/daily_task/config.json` L85-88 -> L85-88 (`+2 -2`) (Correct ten_recruit_point to 800, 650 as specified by the user)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L249-1056 -> L249-966 (`+8 -2`) (Implement daily_page_claiming state lock to prevent downward scroll loop during claim stage)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1146 -> L1061-1067 (`+1 -1`) (Allow unknown page type to route to kakuja_hunt task for page-transition protection)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L971 -> L883-890 (`+4 -1`) (Cap everyday list upward swipe count to 2 to optimize claim time and stop swipe dead loop)
+- `c:/Users/work/Desktop/daily_task/tasks/kakuja_hunt.py` L21-199 -> L21-201 (`+18 -1`) (Implement unknown page type wait buffering to prevent lobby fallback during boss transition)
+- `c:/Users/work/Desktop/daily_task/.agents/AGENTS.md` L6 -> L6 (`+1 -1`) (Update 10x coordinates custom rule to 800, 650)
+
+
+## [Unreleased] - 2026-06-22 10:42:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L56 -> L56 (`+1 -1`) (Restore default ten_recruit_point to 848, 655 in DEFAULT_RECRUITMENT_CONFIG)
+- `c:/Users/work/Desktop/daily_task/config.json` L85-88 -> L85-88 (`+2 -2`) (Correct ten_recruit_point to 848, 655 to prevent offset misclick)
+- `c:/Users/work/Desktop/daily_task/.agents/AGENTS.md` [NEW] (`+6 -0`) (Add custom rules to lock recruitment to 10x only and lock coordinates)
+
+### Removed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L285-376 -> (Deleted) (`+0 -92`) (Completely delete unused choose_recruitment_decision method)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L422 -> (Deleted) (`+0 -1`) (Remove free single intent from skip_forbidden_text whitelist)
+
 ## [Unreleased] - 2026-06-22 10:32:00 (CST)
 
 ### Changed

@@ -21,10 +21,15 @@ def run_task(runner, observation):
             "battle_result_seen": False,
             "victory_confirm_attempts": 0,
             "victory_confirmed": False,
-            "completed": False
+            "completed": False,
+            "unknown_page_count": 0
         }
 
     state = runner.task_state["kakuja_hunt"]
+
+    # 1.1 若为已识别的已知页面，重置未知页面计数器
+    if page_type in ["kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading"]:
+        state["unknown_page_count"] = 0
 
     # 2. 过渡加载动画处理
     if page_type == "kakuja_hunt_loading":
@@ -180,5 +185,18 @@ def run_task(runner, observation):
             "confidence": 0.85,
             "risk": "low"
         }
+
+    # 7. 未知过渡页面处理
+    if page_type == "unknown":
+        state["unknown_page_count"] = state.get("unknown_page_count", 0) + 1
+        max_unknown = int(config.get("max_unknown_page_count", 3))  # 默认等待3次以容错
+        if state["unknown_page_count"] <= max_unknown:
+            return {
+                "intent": f"赫者讨伐中遇到未知过渡界面（第{state['unknown_page_count']}次尝试），原地等待1.5秒",
+                "action": "wait",
+                "target": {"seconds": 1.5},
+                "confidence": 0.9,
+                "risk": "low"
+            }
 
     return None
