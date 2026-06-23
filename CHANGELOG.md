@@ -1,8 +1,10 @@
 # CHANGELOG
 
-## [Unreleased] - 2026-06-23 17:45:00 (CST)
+## [Unreleased] - 2026-06-23 18:35:00 (CST)
 
 ### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1093-1095 -> L1093-1095 (`+1 -1`) (Include unknown page type in peak arena routing list to prevent page-transition loops)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L824-829 -> L823-832 (`+6 -0`) (Decouple button disabled control dynamically based on currentDeviceState target)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L674-678 -> L674-678 (`+1 -1`) (Add matching keywords for peak_arena_rank page classification to improve fault tolerance)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L1240-1244 -> L1240-1244 (`+2 -2`) (Initialize active_task_go_clicked to True for Peak Arena to bypass lobby navigation fallback loop)
 - `c:/Users/work/Desktop/daily_task/dashboard.html` L667 -> L667-671 (`+1 -0`) (Declare currentDeviceState global variable to cache active device status)

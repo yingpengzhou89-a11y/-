@@ -1091,7 +1091,7 @@ class TaskRunner:
 
                 # 巅峰赛日常页面逻辑
                 elif ("巅峰" in effective_target or "排位" in effective_target) and page_type in [
-                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"
+                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement", "unknown"
                 ]:
                     decision = peak_arena.run_task(self, observation)
                     if decision:

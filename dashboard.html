@@ -823,7 +823,13 @@
                         isRunning = false;
                     }
 
-                    // 状态按钮使能控制
+                    // 状态按钮使能控制：精准独立控制，谁启动谁置灰，另一个按钮保持亮色
+                    let isPeakRunning = isRunning && (data.target && data.target.includes("巅峰"));
+                    let isAllRunning = isRunning && !isPeakRunning;
+
+                    document.getElementById('btnAll').disabled = isAllRunning;
+                    const btnPeak = document.getElementById('btnPeakArena');
+                    if (btnPeak) btnPeak.disabled = isPeakRunning;
                     document.getElementById('btnStop').disabled = !isRunning;
 
                     // 参数配置项在日常大循环运行期间禁用保护
