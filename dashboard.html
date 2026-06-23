@@ -668,6 +668,7 @@
         let activeDeviceId = null;
         let lastLogsLengths = {}; // 存储 device_id -> logs length
         let lastScreenshotTimes = {}; // 存储 device_id -> timestamp
+        let currentDeviceState = null;
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
@@ -789,6 +790,7 @@
                         // 如果选中的设备由于某种原因在列表中消失了
                         return;
                     }
+                    currentDeviceState = data;
 
                     // 3. 更新当前活跃设备状态指示面板
                     const statusDot = document.getElementById('statusDot');
@@ -822,9 +824,6 @@
                     }
 
                     // 状态按钮使能控制
-                    document.getElementById('btnAll').disabled = isRunning;
-                    const btnPeak = document.getElementById('btnPeakArena');
-                    if (btnPeak) btnPeak.disabled = isRunning;
                     document.getElementById('btnStop').disabled = !isRunning;
 
                     // 参数配置项在日常大循环运行期间禁用保护
@@ -871,6 +870,10 @@
                 showToast('当前未选中任何活跃的模拟器设备', 'error');
                 return;
             }
+            if (currentDeviceState && currentDeviceState.status === 'running') {
+                showToast(`设备 ${activeDeviceId} 正在运行: ${currentDeviceState.target || '其他任务'}，请先点击“终止当前运行”后再开始日常托管。`, 'error');
+                return;
+            }
             const allTasks = ["login", "commission", "friendship", "recruitment", "arena", "collect", "donate", "daily_dungeon", "shop_refresh", "memory_house", "kakuja_hunt"];
             fetch('/api/run', {
                 method: 'POST',
@@ -892,6 +895,10 @@
         function runPeakArena() {
             if (!activeDeviceId) {
                 showToast('当前未选中任何活跃的模拟器设备', 'error');
+                return;
+            }
+            if (currentDeviceState && currentDeviceState.status === 'running') {
+                showToast(`设备 ${activeDeviceId} 正在运行: ${currentDeviceState.target || '日常大循环'}，请先点击“终止当前运行”后再开始巅峰赛挑战。`, 'error');
                 return;
             }
             fetch('/api/run', {

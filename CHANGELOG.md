@@ -3,6 +3,13 @@
 ## [Unreleased] - 2026-06-23 17:45:00 (CST)
 
 ### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L674-678 -> L674-678 (`+1 -1`) (Add matching keywords for peak_arena_rank page classification to improve fault tolerance)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1240-1244 -> L1240-1244 (`+2 -2`) (Initialize active_task_go_clicked to True for Peak Arena to bypass lobby navigation fallback loop)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L667 -> L667-671 (`+1 -0`) (Declare currentDeviceState global variable to cache active device status)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L790 -> L790-791 (`+1 -0`) (Save active device state in currentDeviceState on status update)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L822-828 -> L822-825 (`+0 -3`) (Remove disabled property updates from action buttons to eliminate visual click feedback coupling)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L870 -> L870-874 (`+4 -0`) (Intercept runSelectedTasks on running status using client-side warning toast)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L897 -> L897-901 (`+4 -0`) (Intercept runPeakArena on running status using client-side warning toast)
 - `c:/Users/work/Desktop/daily_task/web_dashboard.py` L254-257 -> L254-260 (`+3 -0`) (Add HTTP Cache-Control headers to disable dashboard.html browser caching)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L477-478 -> L477-478 (`+1 -1`) (Embed decision dictionary into GuardrailError message for better blocked page diagnosis)
 

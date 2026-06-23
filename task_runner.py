@@ -674,7 +674,7 @@ class TaskRunner:
             return "peak_arena_buy"
 
         # 巅峰赛排位主页
-        if text_contains_any(page_text, ["开始匹配"]) and text_contains_any(page_text, ["匹配次数", "每日任务"]):
+        if text_contains_any(page_text, ["开始匹配", "匹配次数", "匹配记录"]) and text_contains_any(page_text, ["匹配", "任务", "次数"]):
             return "peak_arena_rank"
 
         # 巅峰赛布阵界面
@@ -1240,8 +1240,8 @@ class TaskRunner:
 
     def run(self, target_task=None):
         self.history = []  # 重置本次运行的动作历史，防止跨轮日常托管累积滑动与决策计数
-        self.active_task_go_clicked = False
-        self.active_target_task = None
+        self.active_task_go_clicked = target_task == "巅峰"
+        self.active_target_task = target_task
         self.arena_last_auto_try_count = -1
         self.arena_task_complete = False
         self.arena_no_action_retry_count = 0
