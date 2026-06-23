@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-23 17:45:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L254-257 -> L254-260 (`+3 -0`) (Add HTTP Cache-Control headers to disable dashboard.html browser caching)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L477-478 -> L477-478 (`+1 -1`) (Embed decision dictionary into GuardrailError message for better blocked page diagnosis)
+
 ## [Unreleased] - 2026-06-23 17:25:00 (CST)
 
 ### Changed

@@ -254,6 +254,9 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 page_content = f"<h1>无法加载 dashboard.html: {e}</h1>"
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
             self.end_headers()
             self.wfile.write(page_content.encode("utf-8"))
             

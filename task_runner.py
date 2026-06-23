@@ -477,7 +477,7 @@ class TaskRunner:
             not skip_forbidden_text
             and text_contains_any(observation.get("page_text") or "", self.guardrails["forbidden_keywords"])
         ):
-            raise GuardrailError("forbidden keyword detected on screen")
+            raise GuardrailError(f"forbidden keyword detected on screen. Decision: {decision}")
 
         if action in {"tap", "claim"}:
             target = decision.get("target") or {}
