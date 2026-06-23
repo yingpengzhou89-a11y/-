@@ -4,6 +4,7 @@
 
 ### Changed
 - `c:/Users/work/Desktop/daily_task/README.md` L11-134 -> L11-134 (`+22 -20`) (Update bilingual README with Peak Arena features, file mappings, prerequisites, and CLI instructions)
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L633-655 -> L633-660 (`+15 -14`) (Run adb scanning asynchronously and bypass webbrowser.open to prevent main thread blocking on startup)
 
 ## [Unreleased] - 2026-06-23 01:20:00 (CST)
 

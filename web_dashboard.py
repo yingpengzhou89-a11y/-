@@ -633,22 +633,28 @@ def start_server(port=7556):
     httpd = ThreadingHTTPServer(server_address, DashboardHTTPRequestHandler)
     print(f"自动肝日常系统 Web 控制面板运行在 http://localhost:{port}")
     
-    print("正在扫描在线设备并预抓取首张截图...")
-    try:
-        config = load_dashboard_config(None)
-        adb_path = config.get("adb_path", r"C:\Netease\MuMu\nx_main\adb.exe")
-        import subprocess
-        res = subprocess.run([adb_path, "devices"], capture_output=True, text=True, check=False)
-        lines = res.stdout.splitlines()
-        for line in lines[1:]:
-            if line.strip() and "\tdevice" in line:
-                dev_id = line.split("\t")[0]
-                print(f"正在连接设备 {dev_id} 并抓取首张截图...")
-                capture_idle_screenshot(dev_id)
-    except Exception as exc:
-        print(f"启动首图获取失败: {exc}")
-    
-    webbrowser.open(f"http://localhost:{port}")
+    def async_warmup():
+        print("正在后台扫描在线设备并预抓取首张截图...")
+        try:
+            config = load_dashboard_config(None)
+            adb_path = config.get("adb_path", r"C:\Netease\MuMu\nx_main\adb.exe")
+            import subprocess
+            res = subprocess.run([adb_path, "devices"], capture_output=True, text=True, check=False)
+            lines = res.stdout.splitlines()
+            for line in lines[1:]:
+                if line.strip() and "\tdevice" in line:
+                    dev_id = line.split("\t")[0]
+                    print(f"正在连接设备 {dev_id} 并抓取首张截图...")
+                    capture_idle_screenshot(dev_id)
+        except Exception as exc:
+            print(f"后台启动首图获取失败: {exc}")
+            
+    warmup_t = threading.Thread(target=async_warmup)
+    warmup_t.daemon = True
+    warmup_t.start()
+    print(f"请在浏览器中手动打开控制面板: http://localhost:{port}")
+    # 避免在无头/非交互式环境下调用浏览器导致主线程死锁挂起
+    # webbrowser.open(f"http://localhost:{port}")
     
     try:
         httpd.serve_forever()
