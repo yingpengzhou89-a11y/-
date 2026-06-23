@@ -468,6 +468,8 @@ class TaskRunner:
             or decision["intent"].startswith("赫者讨伐主界面点击挑战")
             or decision["intent"].startswith("领取日常活跃度宝箱")
             or "招募" in decision["intent"]
+            or "巅峰赛" in decision["intent"]
+            or "从主界面直接前往竞技场大厅(巅峰赛入口)" in decision["intent"]
         ):
             skip_forbidden_text = True
 

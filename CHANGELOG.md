@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-23 17:25:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L462-472 -> L462-474 (`+2 -0`) (Add Peak Arena execution and lobby navigation intents to skip_forbidden_text bypass list)
+- `c:/Users/work/Desktop/daily_task/dashboard.html` L199-204 -> L199-205 (`+1 -0`) (Add transition: none !important to .btn:disabled to eliminate passive button dimming animation)
+
 ## [Unreleased] - 2026-06-23 12:25:00 (CST)
 
 ### Changed
