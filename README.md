@@ -12,37 +12,33 @@
 
 * **多设备自动搜寻与管理**：支持一键扫描并自动绑定多开的 MuMu 模拟器端口（支持多开实例）。
 * **高上限守护线程**：支持长达 200 步的连续决策及 1 小时的安全运行守护，防止在大参数配置下超时中断。
-* **核心日常任务覆盖**：
-  * 友情点领取与赠送
-  * 高级招募十连
-  * 资源仓库快速采集
-  * 竞技场挑战
-  * 日常商店刷新
-  * 赫者讨伐
-  * 组织金币捐献
-  * 日常副本扫荡
-  * 日常商店刷新
-  * 回忆之屋扫荡
-* **实时 Web 控制面板**：提供网页端的画布屏幕投影、运行日志轮询、实时运行状态灯展示以及全局参数配置滑块。
+* **核心任务完全覆盖**：
+  * **日常托管大循环**：友情点领取与赠送、高级招募十连、资源仓库快速采集、普通竞技场、日常商店刷新及购买、赫者讨伐、组织金币捐献、日常副本自动扫荡、回忆之屋扫荡。
+  * **巅峰竞技场（排位赛）**：从大厅自动路由、智能门票缺额精细计算与购票（防钻石资源浪费）、自动挑战匹配、**4.5秒智能战斗跳过防连点保护锁**、结算返回。
+* **极简极速领奖与宝箱扫尾**：日常大循环任务做完后，将划屏扫尾判断次数由 `8` 下调至 `6`，到底后**仅上滑 1 次**寻找奖励；利用 `already_claimed` 领奖锁拦截一键合并领奖后的冗余空点击；移除了 100 活跃度的硬死限，依次对 4 个宝箱触发盲点扫尾，大幅增强容错。
+* **实时 Web 控制面板**：网页端画布屏幕投影、运行日志轮询、实时运行状态灯、运行期间按钮置灰保护、**运行目标动态文本解析显示**（如“正在运行: 巅峰赛挑战”）以及全局参数滑块。
 
 ### 项目文件结构 (Clean Architecture)
 
 ```text
 daily_task/
-├── tasks/                 # 核心日常任务功能实现
+├── tasks/                 # 核心任务功能状态机模块
 │   ├── arena.py           # 竞技场挑战
 │   ├── daily_dungeon.py   # 日常副本扫荡（支持自适应）
 │   ├── recruitment.py     # 招募任务
-│   └── warehouse.py       # 资源仓库快速采集
+│   ├── warehouse.py       # 资源仓库快速采集
+│   ├── kakuja_hunt.py     # 赫者讨伐
+│   └── peak_arena.py      # 巅峰竞技场独立挑战
 ├── web_dashboard.py       # 原生多线程 HTTP 服务器，提供 API 与界面承载
 ├── task_runner.py         # 托管决策中心，包含安全护栏与逻辑执行流
 ├── task_detector.py       # 图像文本识别分类与页面检测器
 ├── ocr_utils.py           # RapidOCR 图像处理与全局配置加载工具库
 ├── dashboard.html         # 前端精美控制面板（支持多设备 Tab 页、实时日志、画布投影）
 ├── config.json            # 运行全局配置文件（包含所有坐标与限值参数）
+├── peak_arena_run.py      # 巅峰赛独立命令行执行入口脚本
 ├── run_dashboard.bat      # 【推荐】一键清理并启动 Web 仪表盘控制面板
-├── run_dj.bat             # 一键启动命令行模式
-└── daily_tasks.py         # 命令行模式执行入口
+├── run_dj.bat             # 一键启动命令行模式（日常大循环）
+└── daily_tasks.py         # 命令行模式日常托管执行入口
 ```
 
 ### 前置准备与使用说明
@@ -53,6 +49,7 @@ daily_task/
 2. **游戏内勾选跳过招募动画**：系统已剔除了自动寻找并勾选招募动画跳过框的操作。请在游戏内的高级招募页面中，**手动勾选“跳过招募动画”**（游戏会自动记住该勾选状态）。
 3. **游戏内勾选竞技场自动挑战**：在游戏内竞技场挑战页面，请**手动勾选“自动战斗”**或相关跳过框。
 4. **配好控制面板参数**：在 Web 仪表盘的“日常任务参数配置”卡片中，**调好配好那三个日常参数**（竞技场挑战次数、资源快速采集次数、日常商店刷新次数），点击“保存全局配置”后再开始一键托管。
+5. **巅峰赛（排位赛）门票购买点**：高级 10x 购买门票坐标已锁定并校准在卡池位置 `{"x": 800, "y": 650}`（防连击买错扣钻保护），请不要手动随意挪动。系统将自动差几次买几次直至 7 次匹配拉满。
 
 ### 运行方式
 
@@ -60,10 +57,16 @@ daily_task/
 双击运行项目根目录下的 **`run_dashboard.bat`**。它将自动强杀冲突进程，加载最新代码，并在浏览器中自动打开控制面板：
 `http://localhost:7556`
 
-#### 2. 命令行独立运行
+#### 2. 命令行独立运行（日常大循环）
 运行一键批处理文件：
 ```powershell
 ./run_dj.bat
+```
+
+#### 3. 命令行独立运行（巅峰竞技场）
+如果您需要直接通过命令行拉起独立的巅峰赛自动化流程，可激活 conda 环境后直接执行：
+```powershell
+python peak_arena_run.py
 ```
 
 ---
@@ -75,18 +78,12 @@ This project is an automated daily task executor and Web Dashboard for mobile ga
 ### Key Features
 
 * **Multi-Instance Auto-Scanning**: One-click scanning to detect and bind active MuMu Emulator ports automatically.
-* **Adaptive Dungeon Sweeping**:
-  * Triggers "One-key Sweep" if the button is present.
-  * Automatically falls back to single sweep coordinates `(858, 666)` for low-combat-power accounts where one-key sweep is not unlocked yet.
 * **Extended Safety Guardrails**: Supports up to 200 execution steps and 1 hour of timeout limit per run.
-* **Full Daily Automation**:
-  * Friendship points gifting and claiming.
-  * 10x advanced recruitment (skipping redundant animation checks).
-  * Warehouse resource gathering.
-  * Arena battles.
-  * Shop refreshes and item purchasing.
-  * Boss hunt (Kakuja) rewards harvesting.
-* **Real-time Web Panel**: Canvas screenshot projections, responsive logs streaming, connection status LEDs, and global parameter configuration sliders.
+* **Full Task Automation**:
+  * **Daily Tasks Loop**: Friendship points gifting and claiming, 10x advanced recruitment, warehouse resource gathering, arena battles, shop refreshes & purchases, boss hunt (Kakuja) rewards harvesting, guild gold donations, adaptive dungeon sweeps, and memory house sweeps.
+  * **Independent Peak Arena**: Dedicated routine flow starting directly from the lobby, precise ticket calculation and purchasing (safety coordinate `(800, 650)` to prevent diamond wastes), queue matches, **4.5s skip-button safety delay locks**, and rewards claiming.
+* **Smart Rewards Claiming & Chest Tap**: Limits list swipe checks from `8` to `6` times, triggers **only 1 upward swipe** at list bottom, blocks repetitive redundant actions via `already_claimed` status check, and sequentially blind taps the 4 active chests (bypassing OCR score limits) to maximize daily rewards collection.
+* **Real-time Web Panel**: Canvas screen projection, log streaming, connection status LEDs, button disable protection, **dynamic running target labels** (e.g. "Running: Peak Arena Challenge"), and global configuration sliders.
 
 ### Project Directory Structure (Clean Architecture)
 
@@ -96,16 +93,19 @@ daily_task/
 │   ├── arena.py           # Arena battle handler
 │   ├── daily_dungeon.py   # Dungeon sweep handler (adaptive)
 │   ├── recruitment.py     # Recruitment handler
-│   └── warehouse.py       # Warehouse collection handler
+│   ├── warehouse.py       # Warehouse collection handler
+│   ├── kakuja_hunt.py     # Boss hunt (Kakuja) handler
+│   └── peak_arena.py      # Independent Peak Arena task handler
 ├── web_dashboard.py       # Multithreaded HTTP Server & Web API endpoints
 ├── task_runner.py         # Decision pipeline engine with safety limits
 ├── task_detector.py       # OCR-based page classification and state detector
 ├── ocr_utils.py           # OCR helpers and configurations parser
 ├── dashboard.html         # Responsive GUI (multi-device tabs, live logs, canvas projection)
 ├── config.json            # JSON configs for coordinates, offsets, and thresholds
+├── peak_arena_run.py      # Independent Peak Arena CLI runner
 ├── run_dashboard.bat      # [Recommended] One-click script to kill duplicate services and start dashboard
-├── run_dj.bat             # Start executor in CLI mode
-└── daily_tasks.py         # CLI entrypoint
+├── run_dj.bat             # Start daily loop in CLI mode
+└── daily_tasks.py         # Daily loop CLI entrypoint
 ```
 
 ### Prerequisites & Usage Instructions
@@ -116,6 +116,7 @@ To ensure the automation script runs smoothly without safety interrupts, please 
 2. **Check "Skip Recruitment Animation" in Game**: The system no longer automatically checks this box. Please **manually tick the "Skip Animation" checkbox** on the recruitment screen (the game will remember this state).
 3. **Check "Auto Battle" in Arena**: Please **manually tick the "Auto Battle" or skip options** in the game's arena interface.
 4. **Configure Parameters on Dashboard**: Adjust the **three daily parameters** (Arena challenges, Resource warehouse collection times, and Shop refresh times) in the configuration panel, click "Save global config", and then click "Start".
+5. **Peak Arena Ticket Purchase Position**: The advanced 10x ticket purchase location has been locked at coordinates `{"x": 800, "y": 650}` (safe spot calibration). Do not change it manually to prevent misclicks.
 
 ### Get Started
 
@@ -123,8 +124,14 @@ To ensure the automation script runs smoothly without safety interrupts, please 
 Double-click **`run_dashboard.bat`** in the root directory. It will clean up ports conflict, load the latest code, and launch:
 `http://localhost:7556`
 
-#### 2. CLI Execution
+#### 2. CLI Execution (Daily Tasks Loop)
 Run the batch file in PowerShell or Command Prompt:
 ```powershell
 ./run_dj.bat
+```
+
+#### 3. CLI Execution (Peak Arena)
+If you wish to execute the Peak Arena challenge automation task directly from Command Line:
+```powershell
+python peak_arena_run.py
 ```

@@ -373,6 +373,11 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 params = {}
                 
             print(f"[API] Received /api/run request with params: {params}")
+            try:
+                with open(os.path.join(BASE_DIR, "api_debug.log"), "a", encoding="utf-8") as debug_f:
+                    debug_f.write(f"Received /api/run with params: {params}\n")
+            except Exception:
+                pass
             device_id = params.get("device_id", "").strip()
             if not device_id:
                 try:

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-23 12:25:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/README.md` L11-134 -> L11-134 (`+22 -20`) (Update bilingual README with Peak Arena features, file mappings, prerequisites, and CLI instructions)
+
 ## [Unreleased] - 2026-06-23 01:20:00 (CST)
 
 ### Changed
