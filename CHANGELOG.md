@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-24 16:49:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L693-695 -> L693-697 (`+3 -1`) (Exclude daily reward page keywords from arena_main classification to prevent page classification hijack)
+
 ## [Unreleased] - 2026-06-24 16:42:00 (CST)
 
 ### Changed

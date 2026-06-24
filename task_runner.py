@@ -693,7 +693,9 @@ class TaskRunner:
         # 8. 竞技场选择大厅
         main_keywords = arena_config.get("main_keywords") or ["本服竞技场", "跨服竞技场", "巅峰竞技场"]
         if text_contains_any(page_text, main_keywords):
-            return "arena_main"
+            # 排除每日任务领奖弹窗的干扰
+            if not text_contains_any(page_text, ["每日任务", "日常任务", "已领取"]):
+                return "arena_main"
 
         # 9. 友情点界面
         if text_contains_any(page_text, ["每日赠送上限", "友情点", "好友"]):
