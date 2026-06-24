@@ -48,7 +48,6 @@ daily_task/
 2. **游戏内勾选跳过招募动画**：系统已剔除了自动寻找并勾选招募动画跳过框的操作。请在游戏内的高级招募页面中，**手动勾选“跳过招募动画”**（游戏会自动记住该勾选状态）。
 3. **游戏内勾选竞技场自动挑战**：在游戏内竞技场挑战页面，请**手动勾选“自动战斗”**或相关跳过框。
 4. **配好控制面板参数**：在 Web 仪表盘的“日常任务参数配置”卡片中，**调好配好那三个日常参数**（竞技场挑战次数、资源快速采集次数、日常商店刷新次数），点击“保存全局配置”后再开始一键托管。
-5. **巅峰赛（排位赛）门票购买点**：高级 10x 购买门票坐标已锁定并校准在卡池位置 `{"x": 800, "y": 650}`（防连击买错扣钻保护），请不要手动随意挪动。系统将自动差几次买几次直至 7 次匹配拉满。
 
 ### 初次使用与环境配置步骤
 
@@ -135,7 +134,6 @@ To ensure the automation script runs smoothly without safety interrupts, please 
 2. **Check "Skip Recruitment Animation" in Game**: The system no longer automatically checks this box. Please **manually tick the "Skip Animation" checkbox** on the recruitment screen (the game will remember this state).
 3. **Check "Auto Battle" in Arena**: Please **manually tick the "Auto Battle" or skip options** in the game's arena interface.
 4. **Configure Parameters on Dashboard**: Adjust the **three daily parameters** (Arena challenges, Resource warehouse collection times, and Shop refresh times) in the configuration panel, click "Save global config", and then click "Start".
-5. **Peak Arena Ticket Purchase Position**: The advanced 10x ticket purchase location has been locked at coordinates `{"x": 800, "y": 650}` (safe spot calibration). Do not change it manually to prevent misclicks.
 
 ### First-time Setup Guide
 

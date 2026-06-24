@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-24 17:28:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/README.md` L51 -> L51 (`+0 -1`) (Remove duplicate peak arena ticket purchase calibration description from Chinese prerequisites)
+- `c:/Users/work/Desktop/daily_task/README.md` L138 -> L138 (`+0 -1`) (Remove duplicate peak arena ticket purchase calibration English description)
+
 ## [Unreleased] - 2026-06-24 17:15:00 (CST)
 
 ### Changed
