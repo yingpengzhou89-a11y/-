@@ -135,7 +135,7 @@ def capture_idle_screenshot(device_id):
     except Exception as exc:
         print(f"[{device_id}] 空闲状态截图失败: {exc}")
 
-def run_automation_thread(device_id, tasks, target_task=None):
+def run_automation_thread(device_id, tasks, target_task=None, run_peak_arena=True):
     lock = get_device_lock(device_id)
     with lock:
         state = get_or_create_device_state(device_id)
@@ -176,6 +176,25 @@ def run_automation_thread(device_id, tasks, target_task=None):
             else:
                 state["status"] = "stopped"
                 log_to_device(device_id, f"日常托管结束，状态: {result.get('status')}")
+                
+            # 串联巅峰赛自动挑战
+            if not target_task and run_peak_arena and state.get("status") == "stopped" and not state.get("should_stop", False):
+                log_to_device(device_id, "日常大循环已正常结束，检测到巅峰赛开关开启，开始执行巅峰赛挑战...")
+                state["target"] = "巅峰赛挑战"
+                state["status"] = "running"
+                
+                peak_result = runner.run(target_task="巅峰")
+                
+                if peak_result.get("status") == "blocked":
+                    log_to_device(device_id, f"巅峰赛挑战触发阻断或发生异常，运行中断。原因: {peak_result.get('reason')}")
+                    state["status"] = "blocked"
+                elif peak_result.get("status") == "stopped":
+                    reason = peak_result.get("reason")
+                    log_to_device(device_id, f"巅峰赛挑战正常运行完毕。结束原因: {reason}")
+                    state["status"] = "stopped"
+                else:
+                    state["status"] = "stopped"
+                    log_to_device(device_id, f"巅峰赛挑战结束，状态: {peak_result.get('status')}")
                 
             log_to_device(device_id, "日常自动化流水线运行完成。")
         except GuardrailError as exc:
@@ -428,10 +447,11 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 return
                 
             target_task = params.get("target_task", None)
+            run_peak_arena = params.get("run_peak_arena", True)
             if target_task == "巅峰":
                 t = threading.Thread(target=run_peak_arena_thread, args=(device_id,))
             else:
-                t = threading.Thread(target=run_automation_thread, args=(device_id, tasks, target_task))
+                t = threading.Thread(target=run_automation_thread, args=(device_id, tasks, target_task, run_peak_arena))
             t.daemon = True
             t.start()
             

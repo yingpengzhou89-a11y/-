@@ -19,6 +19,68 @@
             --danger-glow: rgba(239, 68, 68, 0.4);
             --warning: #f59e0b;
         }
+        
+        /* Toggle Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.08);
+            transition: .25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-secondary);
+            transition: .25s ease;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: #ffffff;
+        }
+
+        .slider.round {
+            border-radius: 24px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        /* 运行中被禁用置灰样式 */
+        .switch input:disabled + .slider {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
 
         * {
             box-sizing: border-box;
@@ -526,8 +588,18 @@
                         <span id="targetVal">-</span>
                     </div>
                 </div>
-
-
+                
+                <!-- 巅峰赛自动挑战滑动开关 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 16px; margin-top: 15px; margin-bottom: 5px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="font-weight: 500; font-size: 14px; color: var(--text-primary);">同时进行巅峰赛自动挑战</span>
+                        <span style="font-size: 12px; color: var(--text-secondary);">日常任务结束后，将自动启动巅峰赛挑战流程</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="switchPeakArena" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
 
                 <div class="btn-group" style="margin-top: 10px;">
                     <button id="btnAll" class="btn btn-primary" onclick="runSelectedTasks()">
@@ -616,18 +688,7 @@
 
         <!-- 右侧面板组 -->
         <div style="display: flex; flex-direction: column; gap: 24px;">
-            <!-- 巅峰赛独立挑战入口 -->
-            <div class="card" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(168, 85, 247, 0.03)); border: 1px solid rgba(124, 58, 237, 0.2);">
-                <h2>巅峰赛独立托管</h2>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5; background: rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
-                    <span>🏆 <strong>独立逻辑</strong>：不包含在日常大循环列表中，避开大厅领奖。</span>
-                    <span>⚡ <strong>自适应入口</strong>：自动识别当前页面，直接前往竞技场。</span>
-                </div>
-                <button id="btnPeakArena" class="btn" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #ffffff; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); font-weight: bold; padding: 10px; cursor: pointer; transition: transform 0.2s;" onclick="runPeakArena()">
-                    <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.6 20 4 16.4 4 12S7.6 4 12 4 20 7.6 20 12 16.4 20 12 20M12 8L16 12L12 16V13H8V11H12V8Z"/></svg>
-                    开始独立巅峰赛挑战
-                </button>
-            </div>
+
 
             <!-- 系统日常任务使用说明 -->
             <div class="card">
@@ -823,17 +884,12 @@
                         isRunning = false;
                     }
 
-                    // 状态按钮使能控制：精准独立控制，谁启动谁置灰，另一个按钮保持亮色
-                    let isPeakRunning = isRunning && (data.target && data.target.includes("巅峰"));
-                    let isAllRunning = isRunning && !isPeakRunning;
-
-                    document.getElementById('btnAll').disabled = isAllRunning;
-                    const btnPeak = document.getElementById('btnPeakArena');
-                    if (btnPeak) btnPeak.disabled = isPeakRunning;
+                    // 状态按钮使能控制：直接控制一键托管与终止按钮
+                    document.getElementById('btnAll').disabled = isRunning;
                     document.getElementById('btnStop').disabled = !isRunning;
 
-                    // 参数配置项在日常大循环运行期间禁用保护
-                    const configIds = ["arenaRange", "warehouseRange", "shopRange", "btnSaveConfig", "deviceInput", "deviceSelect", "btnConnectDevice"];
+                    // 参数配置项与巅峰赛 Toggle 开关在任务运行期间禁用保护
+                    const configIds = ["arenaRange", "warehouseRange", "shopRange", "btnSaveConfig", "deviceInput", "deviceSelect", "btnConnectDevice", "switchPeakArena"];
                     configIds.forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.disabled = isRunning;
@@ -881,41 +937,20 @@
                 return;
             }
             const allTasks = ["login", "commission", "friendship", "recruitment", "arena", "collect", "donate", "daily_dungeon", "shop_refresh", "memory_house", "kakuja_hunt"];
+            const runPeak = document.getElementById("switchPeakArena").checked;
             fetch('/api/run', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ device_id: activeDeviceId, tasks: allTasks })
+                body: JSON.stringify({ 
+                    device_id: activeDeviceId, 
+                    tasks: allTasks,
+                    run_peak_arena: runPeak
+                })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     showToast(`启动成功！设备 ${activeDeviceId} 开始日常托管。`, 'success');
-                    updateStatus();
-                } else {
-                    showToast('运行失败: ' + data.reason, 'error');
-                }
-            })
-            .catch(err => showToast('运行发生错误: ' + err, 'error'));
-        }
-
-        function runPeakArena() {
-            if (!activeDeviceId) {
-                showToast('当前未选中任何活跃的模拟器设备', 'error');
-                return;
-            }
-            if (currentDeviceState && currentDeviceState.status === 'running') {
-                showToast(`设备 ${activeDeviceId} 正在运行: ${currentDeviceState.target || '日常大循环'}，请先点击“终止当前运行”后再开始巅峰赛挑战。`, 'error');
-                return;
-            }
-            fetch('/api/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ device_id: activeDeviceId, target_task: '巅峰' })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(`启动成功！设备 ${activeDeviceId} 开始独立执行巅峰赛挑战。`, 'success');
                     updateStatus();
                 } else {
                     showToast('运行失败: ' + data.reason, 'error');
