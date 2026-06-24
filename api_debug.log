@@ -1,0 +1,18 @@
+Received /api/run with params: {'device_id': '127.0.0.1:16384', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16448', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16384', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16384', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16384', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16448', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}
+Received /api/run with params: {'device_id': '127.0.0.1:16384', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16448', 'tasks': ['login', 'commission', 'friendship', 'recruitment', 'arena', 'collect', 'donate', 'daily_dungeon', 'shop_refresh', 'memory_house', 'kakuja_hunt']}
+Received /api/run with params: {'device_id': '127.0.0.1:16416', 'target_task': '巅峰'}

@@ -562,8 +562,8 @@ class TaskRunner:
         if text_contains_any(page_text, ["战斗胜利", "VICTORY"]) and text_contains_any(page_text, ["确定"]) and text_contains_any(page_text, ["总伤害"]):
             return "kakuja_hunt_victory"
 
-        # 0.02 赫者讨伐战斗进行中 (排除竞技场战斗)
-        if text_contains_any(page_text, ["造成伤害", "挂起"]) and not text_contains_any(page_text, ["今日次数", "挑战列表", "本服", "资格赛", "VS", "一键布阵"]):
+        # 0.02 赫者讨伐战斗进行中 (排除竞技场/巅峰赛战斗)
+        if text_contains_any(page_text, ["造成伤害", "挂起"]) and not text_contains_any(page_text, ["今日次数", "挑战列表", "本服", "资格赛", "VS", "一键布阵", "场战斗", "跳过"]):
             return "kakuja_hunt_battle"
 
         # 0.02 赫者讨伐加载动画页
@@ -662,12 +662,9 @@ class TaskRunner:
         # 7. 竞技场排位赛/资格赛主页面
         qualifier_keywords = arena_config.get("qualifier_home_keywords") or ["今日免费", "防守阵容", "挑战积分", "赛季奖励"]
         if text_contains_any(page_text, qualifier_keywords):
-            return "arena_qualifier"
-
-        # 7. 竞技场排位赛/资格赛主页面
-        qualifier_keywords = arena_config.get("qualifier_home_keywords") or ["今日免费", "防守阵容", "挑战积分", "赛季奖励"]
-        if text_contains_any(page_text, qualifier_keywords):
-            return "arena_qualifier"
+            # 排除巅峰赛排位主页的干扰特征
+            if not text_contains_any(page_text, ["开始匹配", "匹配次数", "匹配记录", "巅峰", "可购买"]):
+                return "arena_qualifier"
 
         # 巅峰赛购买弹窗
         if text_contains_any(page_text, ["购买次数"]) and text_contains_any(page_text, ["总价", "拥有"]) and text_contains_any(page_text, ["确认", "取消"]):
@@ -682,7 +679,7 @@ class TaskRunner:
             return "peak_arena_formation"
 
         # 巅峰赛战斗进行中
-        if text_contains_any(page_text, ["跳过", "跳过战斗"]) and not text_contains_any(page_text, ["开始匹配", "挑战"]):
+        if text_contains_any(page_text, ["跳过", "跳过战斗", "场战斗"]) and not text_contains_any(page_text, ["开始匹配", "挑战"]):
             return "peak_arena_battle"
 
         # 巅峰赛对战结算页
@@ -764,6 +761,18 @@ class TaskRunner:
                     "reason": "outside game"
                 },
                 "confidence": 1,
+                "risk": "low"
+            }
+
+        # 1.2 巅峰赛/排位赛完成性校验 (当任务已完成并已退回主界面/其他页面时，直接停机)
+        if self.arena_task_complete and target_task and ("巅峰" in target_task or "排位" in target_task):
+            return {
+                "intent": "巅峰赛/排位赛挑战与领奖已全部完成，安全停机",
+                "action": "stop",
+                "target": {
+                    "reason": "peak arena task completed"
+                },
+                "confidence": 1.0,
                 "risk": "low"
             }
 
@@ -1029,7 +1038,7 @@ class TaskRunner:
                 ]:
                     is_matched_page = True
                 elif ("巅峰" in effective_target or "排位" in effective_target) and page_type in [
-                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"
+                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement", "arena_formation", "arena_battle", "arena_settlement"
                 ]:
                     is_matched_page = True
                 elif "捐献" in effective_target and page_type in ["guild_main", "guild_donation_select"]:
@@ -1091,7 +1100,7 @@ class TaskRunner:
 
                 # 巅峰赛日常页面逻辑
                 elif ("巅峰" in effective_target or "排位" in effective_target) and page_type in [
-                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement", "unknown"
+                    "arena_main", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement", "arena_formation", "arena_battle", "arena_settlement", "unknown"
                 ]:
                     decision = peak_arena.run_task(self, observation)
                     if decision:
@@ -1240,6 +1249,7 @@ class TaskRunner:
 
     def run(self, target_task=None):
         self.history = []  # 重置本次运行的动作历史，防止跨轮日常托管累积滑动与决策计数
+        self.task_state = {}  # 每次新开运行，都彻底清空任何历史状态机内存，防止跨轮缓存污染
         self.active_task_go_clicked = target_task == "巅峰"
         self.active_target_task = target_task
         self.arena_last_auto_try_count = -1

@@ -1,8 +1,39 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-24 16:42:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L57-60 -> L57-61 (`+1 -0`) (Reset skip_clicks_in_battle to 0 on returning to peak_arena_rank page as safety fallback)
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L166-170 -> L166-171 (`+1 -0`) (Reset skip_clicks_in_battle to 0 on entering peak_arena_formation page as safety fallback)
+
+## [Unreleased] - 2026-06-23 21:10:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L236-290 -> L236-281 (`+33 -54`) (Refactor claiming phase logic with OCR-based dynamic detection of '领取' text to achieve click retry resilience and eliminate hardcoded coordinates)
+
+## [Unreleased] - 2026-06-23 20:34:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L565-567 -> L565-567 (`+3 -3`) (Exclude peak arena battle keywords from kakuja_hunt_battle to prevent page hijack loop during transition)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L681-683 -> L681-683 (`+3 -3`) (Extend peak_arena_battle keywords with field battle identifiers to improve classification resilience)
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L212-223 -> L212-232 (`+21 -10`) (Check for back button text on settlement to branch between standard popup dismissal and back button tap)
+
+## [Unreleased] - 2026-06-23 20:18:00 (CST)
+
+### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L662-671 -> L662-668 (`+3 -7`) (Merge duplicate arena_qualifier checks and exclude peak arena keywords from it to prevent page classification hijack)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L768-769 -> L768-782 (`+13 -0`) (Add peak arena completion check in choose_rule_decision to prevent lobby-to-city infinite navigation loop)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1041 -> L1041 (`+1 -1`) (Include regular arena page types in peak arena match check list)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1103 -> L1103 (`+1 -1`) (Include regular arena page types in peak arena routing check list)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L1249 -> L1249-1250 (`+1 -0`) (Clear task_state status machine cache at the beginning of run() to prevent cross-run state pollution)
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L167 -> L167 (`+1 -1`) (Support both peak and regular formation page types in peak arena state machine)
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L178 -> L178 (`+1 -1`) (Support both peak and regular battle page types in peak arena state machine)
+- `c:/Users/work/Desktop/daily_task/tasks/peak_arena.py` L213 -> L213 (`+1 -1`) (Support both peak and regular settlement page types in peak arena state machine)
+
 ## [Unreleased] - 2026-06-23 18:35:00 (CST)
 
 ### Changed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L558-559 -> L558-561 (`+3 -1`) (Exclude peak arena core keywords from is_task_page logic in page classification to prevent misclassifying Peak Arena rank home page as daily tasks hall)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L1093-1095 -> L1093-1095 (`+1 -1`) (Include unknown page type in peak arena routing list to prevent page-transition loops)
 - `c:/Users/work/Desktop/daily_task/dashboard.html` L824-829 -> L823-832 (`+6 -0`) (Decouple button disabled control dynamically based on currentDeviceState target)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L674-678 -> L674-678 (`+1 -1`) (Add matching keywords for peak_arena_rank page classification to improve fault tolerance)

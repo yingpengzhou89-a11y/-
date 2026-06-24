@@ -56,6 +56,7 @@ def run_task(runner, observation):
 
     # 2.3 巅峰赛排位主页 (peak_arena_rank)
     if page_type == "peak_arena_rank":
+        state["skip_clicks_in_battle"] = 0  # 每次回到排位主页，重置战斗跳过点击次数
         # 2.3.1 若已标记完成，点击小房子 (324, 40) 返回主城
         if state["completed"]:
             runner.arena_task_complete = True
@@ -164,7 +165,8 @@ def run_task(runner, observation):
             }
 
     # 2.5 匹配成功后的布阵出战页 (peak_arena_formation)
-    if page_type == "peak_arena_formation":
+    if page_type in ["peak_arena_formation", "arena_formation"]:
+        state["skip_clicks_in_battle"] = 0  # 每次匹配成功进入布阵，重置战斗跳过点击次数
         # 点击右下角“挑战” (1175, 641)
         return {
             "intent": "巅峰赛: 匹配成功进入布阵，点击挑战开始战斗",
@@ -175,7 +177,7 @@ def run_task(runner, observation):
         }
 
     # 2.6 战斗中 (peak_arena_battle)
-    if page_type == "peak_arena_battle":
+    if page_type in ["peak_arena_battle", "arena_battle"]:
         clicks = state.get("skip_clicks_in_battle", 0)
         last_skip = state.get("last_skip_time", 0)
         elapsed = time.time() - last_skip
@@ -209,9 +211,21 @@ def run_task(runner, observation):
                 "risk": "low"
             }
 
-    # 2.7 战斗结算页 (peak_arena_settlement)
-    if page_type == "peak_arena_settlement":
+    # 2.7 战斗结算页 (peak_arena_settlement / arena_settlement)
+    if page_type in ["peak_arena_settlement", "arena_settlement"]:
         state["skip_clicks_in_battle"] = 0
+        
+        # 2.7.1 若结算页还没有真正的“返回”按钮（例如全屏普通战斗胜利/失败弹窗，需点击任意区域）
+        if not text_contains_any(page_text, ["返回"]):
+            return {
+                "intent": "巅峰赛: 战斗结束，点击屏幕任意区域关闭结果",
+                "action": "tap",
+                "target": {"x": 640, "y": 650},
+                "confidence": 0.9,
+                "risk": "low"
+            }
+        
+        # 2.7.2 带有“返回”按钮的 MVP 或排位结算页
         state["challenge_count"] = state.get("challenge_count", 0) + 1
         # 点击“返回” (1013, 650)
         return {
@@ -224,43 +238,48 @@ def run_task(runner, observation):
 
     # 2.8 每日任务领奖阶段处理
     if state["stage"] == "claiming":
-        idx = state.get("claim_idx", 0)
-        coords = [
-            {"x": 1041, "y": 187},
-            {"x": 1041, "y": 321},
-            {"x": 1041, "y": 455},
-            {"x": 1041, "y": 590}
-        ]
+        ocr_items = observation.get("items") or []
         
-        if idx < 4:
-            state["claim_idx"] = idx + 1
+        # 2.8.1 从所有 OCR 文本项中过滤出文本精确为“领取”的按钮坐标
+        claim_targets = []
+        for item in ocr_items:
+            text = item.get("text", "").strip()
+            if text in ["领取", "領取"]:
+                claim_targets.append({"x": item["x"], "y": item["y"]})
+        
+        # 2.8.2 如果发现有可以领取的“领取”按钮，点击最上面的一个奖励
+        if claim_targets:
+            # 按照 y 坐标从上往下排序
+            claim_targets.sort(key=lambda pt: pt["y"])
+            target_pt = claim_targets[0]
             return {
-                "intent": f"巅峰赛: 每日任务领取第 {idx + 1} 个奖励",
+                "intent": f"巅峰赛: 发现 {len(claim_targets)} 个未领取奖励，点击其中一个进行领取",
                 "action": "tap",
-                "target": coords[idx],
-                "confidence": 0.9,
-                "risk": "low"
-            }
-        elif idx == 4:
-            state["claim_idx"] = idx + 1
-            # 点击右上角大红叉 (1134, 92) 返回排位主页
-            return {
-                "intent": "巅峰赛: 每日任务奖励领完，点击右上角大红叉返回排位主页",
-                "action": "tap",
-                "target": {"x": 1134, "y": 92},
-                "confidence": 0.9,
-                "risk": "low"
-            }
-        else:
-            state["completed"] = True
-            # 点击小房子 (324, 40) 返回主城
-            return {
-                "intent": "巅峰赛: 每日任务界面已关闭，点击小房子返回主城",
-                "action": "tap",
-                "target": {"x": 324, "y": 40},
+                "target": {"x": int(target_pt["x"]), "y": int(target_pt["y"])},
                 "confidence": 0.95,
                 "risk": "low"
             }
+        
+        # 2.8.3 如果没有检测到任何“领取”按钮，优先进行 2.5 秒缓冲等待弹窗渲染
+        if not state.get("claim_wait_done", False):
+            state["claim_wait_done"] = True
+            return {
+                "intent": "巅峰赛: 刚进入每日任务或未加载出奖励，原地缓冲等待 2.5 秒确保弹窗渲染完毕",
+                "action": "wait",
+                "target": {"seconds": 2.5},
+                "confidence": 0.9,
+                "risk": "low"
+            }
+        
+        # 2.8.4 已经进行过缓冲等待，且确认无“领取”按钮，代表奖励已全部领完，点击右上角大红叉 (1134, 92) 退出
+        state["completed"] = True
+        return {
+            "intent": "巅峰赛: 每日任务奖励均已领取完毕，点击右上角大红叉返回排位主页",
+            "action": "tap",
+            "target": {"x": 1134, "y": 92},
+            "confidence": 0.9,
+            "risk": "low"
+        }
 
     # 3. 未知过渡页防失控保护
     if page_type == "unknown":
