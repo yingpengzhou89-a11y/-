@@ -15,7 +15,6 @@
 * **核心任务完全覆盖**：
   * **日常托管大循环**：友情点领取与赠送、高级招募十连、资源仓库快速采集、普通竞技场、日常商店刷新及购买、赫者讨伐、组织金币捐献、日常副本自动扫荡、回忆之屋扫荡。
   * **巅峰竞技场（排位赛）**：从大厅自动路由、智能门票缺额精细计算与购票（防钻石资源浪费）、自动挑战匹配、**4.5秒智能战斗跳过防连点保护锁**、结算返回。
-* **极简极速领奖与宝箱扫尾**：日常大循环任务做完后，将划屏扫尾判断次数由 `8` 下调至 `6`，到底后**仅上滑 1 次**寻找奖励；利用 `already_claimed` 领奖锁拦截一键合并领奖后的冗余空点击；移除了 100 活跃度的硬死限，依次对 4 个宝箱触发盲点扫尾，大幅增强容错。
 * **实时 Web 控制面板**：网页端画布屏幕投影、运行日志轮询、实时运行状态灯、运行期间按钮置灰保护、**运行目标动态文本解析显示**（如“正在运行: 巅峰赛挑战”）以及全局参数滑块。
 
 ### 项目文件结构 (Clean Architecture)
@@ -51,6 +50,27 @@ daily_task/
 4. **配好控制面板参数**：在 Web 仪表盘的“日常任务参数配置”卡片中，**调好配好那三个日常参数**（竞技场挑战次数、资源快速采集次数、日常商店刷新次数），点击“保存全局配置”后再开始一键托管。
 5. **巅峰赛（排位赛）门票购买点**：高级 10x 购买门票坐标已锁定并校准在卡池位置 `{"x": 800, "y": 650}`（防连击买错扣钻保护），请不要手动随意挪动。系统将自动差几次买几次直至 7 次匹配拉满。
 
+### 初次使用与环境配置步骤
+
+若您是第一次在电脑上部署并运行本项目，请按以下步骤完成初始化配置：
+
+1. **安装环境依赖**：
+   - 确保本地已安装 Python 3.10+ 环境（推荐使用 Miniconda/Anaconda 管理）；
+   - 在项目根目录下打开终端，执行以下命令安装运行所需的第三方库：
+     ```powershell
+     pip install -r requirements.txt
+     ```
+2. **配置安卓模拟器**：
+   - 推荐下载并使用 **MuMu 模拟器12**；
+   - 必须把模拟器的分辨率设置为 **`1280 x 720`** (DPI 设为 240)；
+   - 在模拟器设置中开启 **ADB 调试**。
+3. **修改配置文件 (config.json)**：
+   - 用文本编辑器打开根目录下的 `config.json`；
+   - 将首行的 `"adb_path"` 修改为您本地模拟器 `adb.exe` 的真实绝对路径（Windows 系统下请使用双反斜杠进行路径转义）；
+   - 默认的主设备端口 `"device_id"` 设为 `127.0.0.1:7555`。若端口不同，可直接通过网页控制台扫描检测。
+4. **启动游戏**：
+   - 在模拟器内启动游戏，登录好并保持在游戏主城（或任意正常游戏页面）。
+
 ### 运行方式
 
 #### 1. 运行 Web 仪表盘（推荐）
@@ -82,7 +102,6 @@ This project is an automated daily task executor and Web Dashboard for mobile ga
 * **Full Task Automation**:
   * **Daily Tasks Loop**: Friendship points gifting and claiming, 10x advanced recruitment, warehouse resource gathering, arena battles, shop refreshes & purchases, boss hunt (Kakuja) rewards harvesting, guild gold donations, adaptive dungeon sweeps, and memory house sweeps.
   * **Independent Peak Arena**: Dedicated routine flow starting directly from the lobby, precise ticket calculation and purchasing (safety coordinate `(800, 650)` to prevent diamond wastes), queue matches, **4.5s skip-button safety delay locks**, and rewards claiming.
-* **Smart Rewards Claiming & Chest Tap**: Limits list swipe checks from `8` to `6` times, triggers **only 1 upward swipe** at list bottom, blocks repetitive redundant actions via `already_claimed` status check, and sequentially blind taps the 4 active chests (bypassing OCR score limits) to maximize daily rewards collection.
 * **Real-time Web Panel**: Canvas screen projection, log streaming, connection status LEDs, button disable protection, **dynamic running target labels** (e.g. "Running: Peak Arena Challenge"), and global configuration sliders.
 
 ### Project Directory Structure (Clean Architecture)
@@ -117,6 +136,27 @@ To ensure the automation script runs smoothly without safety interrupts, please 
 3. **Check "Auto Battle" in Arena**: Please **manually tick the "Auto Battle" or skip options** in the game's arena interface.
 4. **Configure Parameters on Dashboard**: Adjust the **three daily parameters** (Arena challenges, Resource warehouse collection times, and Shop refresh times) in the configuration panel, click "Save global config", and then click "Start".
 5. **Peak Arena Ticket Purchase Position**: The advanced 10x ticket purchase location has been locked at coordinates `{"x": 800, "y": 650}` (safe spot calibration). Do not change it manually to prevent misclicks.
+
+### First-time Setup Guide
+
+If you are running this project for the first time, please follow the steps below:
+
+1. **Install Dependencies**:
+   - Ensure Python 3.10+ is installed on your local environment (Miniconda/Anaconda is highly recommended).
+   - Install required packages by running:
+     ```powershell
+     pip install -r requirements.txt
+     ```
+2. **Configure Emulator**:
+   - We recommend downloading and installing **MuMu Player 12**.
+   - Make sure to set the emulator resolution to exactly **`1280 x 720`** (DPI 240).
+   - Enable **ADB debugging** in your emulator's settings.
+3. **Update config.json**:
+   - Open `config.json` in the root directory.
+   - Change the first line `"adb_path"` to the actual absolute path of your emulator's `adb.exe` (use double backslashes in Windows to escape).
+   - Set the default `"device_id"` to `127.0.0.1:7555`. If you run other emulators, you can search and bind emulator ports dynamically via the Web Dashboard.
+4. **Start the Game**:
+   - Launch your game in the emulator, log in, and stay on the main city interface (or any playable page).
 
 ### Get Started
 

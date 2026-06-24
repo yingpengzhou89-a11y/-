@@ -11,6 +11,10 @@
 - `c:/Users/work/Desktop/daily_task/dashboard.html` L898-932 -> L959 (`+0 -26`) (Clean up legacy runPeakArena client-side handler)
 - `c:/Users/work/Desktop/daily_task/web_dashboard.py` L138 -> L138-197 (`+20 -1`) (Update run_automation_thread signature to accept run_peak_arena and execute peak arena automatically after daily tasks finish)
 - `c:/Users/work/Desktop/daily_task/web_dashboard.py` L431-435 -> L450-455 (`+2 -1`) (Pass run_peak_arena argument to run_automation_thread invocation in API handler)
+- `c:/Users/work/Desktop/daily_task/README.md` L17 -> L17 (`+0 -1`) (Remove obsolete daily rewards sweep description from features list)
+- `c:/Users/work/Desktop/daily_task/README.md` L50-52 -> L50-73 (`+21 -0`) (Add first-time setup guide for environment dependencies, emulator configuration, and config files)
+- `c:/Users/work/Desktop/daily_task/README.md` L83 -> L83 (`+0 -1`) (Remove obsolete daily rewards sweep English description)
+- `c:/Users/work/Desktop/daily_task/README.md` L115-117 -> L115-138 (`+21 -0`) (Add first-time setup guide in English section)
 
 ## [Unreleased] - 2026-06-24 16:49:00 (CST)
 
