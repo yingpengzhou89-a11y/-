@@ -167,7 +167,7 @@
             "x": 1106,
             "y": 137
         },
-        "max_collect_actions": 2
+        "max_collect_actions": 3
     },
     "guild_donation": {
         "donation_entry_point": {
@@ -191,6 +191,10 @@
         "refresh_point": {
             "x": 380,
             "y": 597
+        },
+        "confirm_refresh_point": {
+            "x": 785,
+            "y": 483
         },
         "back_point": {
             "x": 323,

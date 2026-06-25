@@ -102,6 +102,7 @@ def merge_guild_donation_config(app_config):
 DEFAULT_SHOP_REFRESH_CONFIG = {
     "page_keywords": ["日常商店", "道具商店", "集结商店", "自动购买"],
     "refresh_point": {"x": 380, "y": 597},
+    "confirm_refresh_point": {"x": 785, "y": 483},
     "back_point": {"x": 324, "y": 39},
     "max_refresh_actions": 2
 }
@@ -446,6 +447,7 @@ class TaskRunner:
             "组织页面点击组织捐献入口",
             "组织捐献任务结束，返回主界面",
             "日常商店购买弹窗点击关闭",
+            "日常商店存在珍贵道具，确认继续刷新",
             "日常商店刷新动作已满足限制，点击小房子返回主界面",
             "回忆之屋扫荡奖励弹窗关闭",
             "回忆之屋扫荡动作已满足限制，点击小房子返回主界面",
@@ -596,6 +598,14 @@ class TaskRunner:
         memory_config = merge_memory_house_config(self.app_config)
         if text_contains_any(page_text, memory_config["page_keywords"]) and text_contains_any(page_text, ["回忆之屋"]):
             return "memory_house_main"
+
+        # 0.09 日常商店珍贵道具刷新确认提示
+        if (
+            text_contains_any(page_text, ["温馨提示"])
+            and text_contains_any(page_text, ["珍贵道具", "没有购买"])
+            and text_contains_any(page_text, ["是否刷新", "确认"])
+        ):
+            return "shop_refresh_confirm"
 
         # 0.1 日常商店刷新弹窗 (高优先级，包含“恭喜获得”以及“快速购买/购买消耗/自动购买”)
         if text_contains_any(page_text, ["恭喜获得"]) and text_contains_any(page_text, ["快速购买", "购买消耗", "自动购买"]):
@@ -1038,6 +1048,33 @@ class TaskRunner:
                 decision = peak_arena.run_task(self, observation)
                 if decision:
                     return decision
+
+            # 普通竞技场已经发起挑战后，unknown/战斗/结算等页面必须继续
+            # 交给竞技场状态机，避免通用导航误点小房子返回主界面。
+            arena_state = self.task_state.get("arena") or {}
+            if (
+                effective_target
+                and ("竞技" in effective_target or "竞技场" in effective_target)
+                and not ("巅峰" in effective_target or "排位" in effective_target)
+                and arena_state.get("battle_pending")
+                and (
+                    page_type in [
+                        "unknown",
+                        "arena_challenge_list",
+                        "arena_formation",
+                        "arena_battle",
+                        "arena_settlement"
+                    ]
+                    or text_contains_any(
+                        page_text,
+                        merge_arena_config(self.app_config).get("battle_keywords") or []
+                    )
+                )
+            ):
+                from tasks import arena
+                decision = arena.run_task(self, observation)
+                if decision:
+                    return decision
             
             # 自适应豁免：如果当前页面正好就是我们要执行的子任务目标页面，自动激活前往标记，避免多余的退回再进动作
             is_matched_page = False
@@ -1058,7 +1095,7 @@ class TaskRunner:
                     is_matched_page = True
                 elif "捐献" in effective_target and page_type in ["guild_main", "guild_donation_select"]:
                     is_matched_page = True
-                elif "商店" in effective_target and page_type in ["shop_main", "shop_buy_settlement"]:
+                elif "商店" in effective_target and page_type in ["shop_main", "shop_buy_settlement", "shop_refresh_confirm"]:
                     is_matched_page = True
                 elif "回忆" in effective_target and page_type in ["memory_house_main", "memory_house_sweep_settlement"]:
                     is_matched_page = True
@@ -1126,7 +1163,7 @@ class TaskRunner:
                     decision = guild_donation.run_task(self, observation)
                     if decision:
                         return decision
-                elif "商店" in effective_target and page_type in ["shop_main", "shop_buy_settlement"]:
+                elif "商店" in effective_target and page_type in ["shop_main", "shop_buy_settlement", "shop_refresh_confirm"]:
                     decision = shop_refresh.run_task(self, observation)
                     if decision:
                         return decision
@@ -1228,7 +1265,7 @@ class TaskRunner:
                 }
 
             # 如果处于其他任何任务子页面 (如资格赛主页、布阵等) 但还没前往，一律点顶部房子图标 (324, 39) 退回大厅
-            if page_type in ["arena_main", "arena_qualifier", "arena_formation", "friendship", "unknown", "guild_main", "guild_donation_select", "shop_main", "shop_buy_settlement", "memory_house_main", "memory_house_sweep_settlement", "daily_dungeon_main", "daily_dungeon_settlement", "kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"]:
+            if page_type in ["arena_main", "arena_qualifier", "arena_formation", "friendship", "unknown", "guild_main", "guild_donation_select", "shop_main", "shop_buy_settlement", "shop_refresh_confirm", "memory_house_main", "memory_house_sweep_settlement", "daily_dungeon_main", "daily_dungeon_settlement", "kakuja_hunt_main", "kakuja_hunt_formation", "kakuja_hunt_battle", "kakuja_hunt_victory", "kakuja_hunt_loading", "peak_arena_home", "peak_arena_rank", "peak_arena_buy", "peak_arena_formation", "peak_arena_battle", "peak_arena_settlement"]:
                 return {
                     "intent": "返回主界面以寻找任务页",
                     "action": "tap",

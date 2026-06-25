@@ -7,9 +7,21 @@ def run_task(runner, observation):
     
     page_text = observation.get("page_text") or ""
     arena_config = merge_arena_config(runner.app_config)
+    page_type = runner.classify_current_page(observation)
+    state = runner.task_state.setdefault(
+        "arena",
+        {
+            "battle_pending": False,
+            "challenge_list_waits": 0,
+            "challenge_started_count": None
+        }
+    )
 
     # 1. 结算关闭 (高优先级)
     if text_contains_any(page_text, ["战斗胜利", "战斗失败", "点击继续", "点击任意区域", "DEFEAT", "WIN"]):
+        state["battle_pending"] = False
+        state["challenge_list_waits"] = 0
+        state["challenge_started_count"] = None
         return {
             "intent": "关闭竞技场战斗结果",
             "action": "tap",
@@ -33,6 +45,7 @@ def run_task(runner, observation):
 
     # 3. 战斗中正常观看等待 (不点击挂起)
     if text_contains_any(page_text, arena_config.get("battle_keywords") or []):
+        state["battle_pending"] = True
         return {
             "intent": "等待竞技场战斗结束",
             "action": "wait",
@@ -63,9 +76,48 @@ def run_task(runner, observation):
                 "risk": "low"
             }
 
+        # 刚点击免费挑战后，页面可能仍短暂停留在挑战列表。
+        # 先等待页面切换，避免同一场挑战被连续点击多次。
+        if state["battle_pending"]:
+            started_count = state.get("challenge_started_count")
+            if (
+                today_count is not None
+                and started_count is not None
+                and today_count > started_count
+            ):
+                state["battle_pending"] = False
+                state["challenge_list_waits"] = 0
+                state["challenge_started_count"] = None
+                return {
+                    "intent": "竞技场挑战次数已增加，关闭可能残留的结算层",
+                    "action": "tap",
+                    "target": arena_config["continue_point"],
+                    "confidence": 0.85,
+                    "risk": "low"
+                }
+
+            waits = int(state.get("challenge_list_waits", 0))
+            if waits < 2:
+                state["challenge_list_waits"] = waits + 1
+                return {
+                    "intent": "竞技场挑战已发起，等待进入布阵或战斗",
+                    "action": "wait",
+                    "target": {
+                        "seconds": 2
+                    },
+                    "confidence": 0.9,
+                    "risk": "low"
+                }
+            state["battle_pending"] = False
+            state["challenge_list_waits"] = 0
+            state["challenge_started_count"] = None
+
         # 之后是正常的免费挑战
         if text_contains_any(page_text, ["免费", "ť"]):
             free_challenges = runner.decision_count(action="tap", intent_contains="竞技场免费挑战", after_intent="前往执行未完成任务: 挑战竞技场")
+            state["battle_pending"] = True
+            state["challenge_list_waits"] = 0
+            state["challenge_started_count"] = today_count
             return {
                 "intent": f"竞技场免费挑战第{free_challenges + 1}次",
                 "action": "tap",
@@ -106,6 +158,8 @@ def run_task(runner, observation):
     # 6. 布阵出战页
     if text_contains_any(page_text, arena_config.get("formation_keywords") or []):
         runner.arena_no_action_retry_count = 0
+        state["battle_pending"] = True
+        state["challenge_list_waits"] = 0
         return {
             "intent": "确认竞技场挑战出战",
             "action": "tap",
@@ -114,6 +168,18 @@ def run_task(runner, observation):
             "risk": "low"
         }
 
+
+    # 7. 已发起挑战后的未知过渡页只等待，不尝试返回主界面。
+    if page_type == "unknown" and state["battle_pending"]:
+        return {
+            "intent": "竞技场挑战进行中，未知过渡界面等待",
+            "action": "wait",
+            "target": {
+                "seconds": 3
+            },
+            "confidence": 0.9,
+            "risk": "low"
+        }
 
     # 8. 容错重试机制
     if runner.arena_no_action_retry_count < 3:

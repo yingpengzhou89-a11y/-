@@ -5,7 +5,17 @@ def run_task(runner, observation):
     page_type = runner.classify_current_page(observation)
     shop_config = merge_shop_refresh_config(runner.app_config)
 
-    # 1. 弹出快速购买的结算页处理
+    # 1. 稀有资源未购买的刷新确认提示
+    if page_type == "shop_refresh_confirm":
+        return {
+            "intent": "日常商店存在珍贵道具，确认继续刷新",
+            "action": "tap",
+            "target": shop_config["confirm_refresh_point"],
+            "confidence": 0.95,
+            "risk": "low"
+        }
+
+    # 2. 弹出快速购买的结算页处理
     if page_type == "shop_buy_settlement":
         return {
             "intent": "日常商店购买弹窗点击关闭",
@@ -15,7 +25,7 @@ def run_task(runner, observation):
             "risk": "low"
         }
 
-    # 2. 刷新动作计数限制
+    # 3. 刷新动作计数限制
     refresh_actions = runner.decision_count(action="tap", intent_contains="日常商店执行刷新", after_intent="前往执行未完成任务: 日常商店刷新")
     max_refresh_actions = int(shop_config.get("max_refresh_actions", 2))
 
@@ -28,7 +38,7 @@ def run_task(runner, observation):
             "risk": "low"
         }
 
-    # 3. 正常刷新点击
+    # 4. 正常刷新点击
     return {
         "intent": f"日常商店执行刷新第{refresh_actions + 1}次",
         "action": "tap",

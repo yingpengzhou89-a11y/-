@@ -1,6 +1,31 @@
+import re
+
+
+def friendship_gift_count(text):
+    compact = (
+        text
+        .replace(" ", "")
+        .replace("\n", "")
+        .replace("\r", "")
+        .replace("：", ":")
+    )
+    match = re.search(r"每日赠送上限:(\d+)/30", compact)
+    return int(match.group(1)) if match else None
+
+
 def run_task(runner, observation):
     """友情点任务：执行领取赠送，确认成功后再退出。"""
     page_text = observation.get("page_text") or ""
+    state = runner.task_state.setdefault(
+        "friendship",
+        {
+            "initial_gift_count": None
+        }
+    )
+    current_gift_count = friendship_gift_count(page_text)
+
+    if state["initial_gift_count"] is None and current_gift_count is not None:
+        state["initial_gift_count"] = current_gift_count
 
     normalized_text = (
         page_text
@@ -14,6 +39,11 @@ def run_task(runner, observation):
     friendship_success = (
         "领取和赠送成功" in normalized_text
         or "每日赠送上限30/30" in normalized_text
+        or (
+            current_gift_count is not None
+            and state["initial_gift_count"] is not None
+            and current_gift_count > state["initial_gift_count"]
+        )
     )
 
     if friendship_success:
