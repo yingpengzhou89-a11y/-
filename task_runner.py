@@ -1025,6 +1025,19 @@ class TaskRunner:
             self.daily_page_up_swipe_count = 0
             page_type = self.classify_current_page(observation)
             effective_target = target_task or self.active_target_task
+
+            # 巅峰赛每日任务弹窗可能被页面分类器识别为 main_city。
+            # claiming 阶段优先交给巅峰赛状态机，避免被主城导航规则抢占。
+            peak_state = self.task_state.get("peak_arena") or {}
+            if (
+                effective_target
+                and ("巅峰" in effective_target or "排位" in effective_target)
+                and peak_state.get("stage") == "claiming"
+            ):
+                from tasks import peak_arena
+                decision = peak_arena.run_task(self, observation)
+                if decision:
+                    return decision
             
             # 自适应豁免：如果当前页面正好就是我们要执行的子任务目标页面，自动激活前往标记，避免多余的退回再进动作
             is_matched_page = False

@@ -238,43 +238,24 @@ def run_task(runner, observation):
 
     # 2.8 每日任务领奖阶段处理
     if state["stage"] == "claiming":
-        ocr_items = observation.get("items") or []
-        
-        # 2.8.1 从所有 OCR 文本项中过滤出文本精确为“领取”的按钮坐标
-        claim_targets = []
-        for item in ocr_items:
-            text = item.get("text", "").strip()
-            if text in ["领取", "領取"]:
-                claim_targets.append({"x": item["x"], "y": item["y"]})
-        
-        # 2.8.2 如果发现有可以领取的“领取”按钮，点击最上面的一个奖励
-        if claim_targets:
-            # 按照 y 坐标从上往下排序
-            claim_targets.sort(key=lambda pt: pt["y"])
-            target_pt = claim_targets[0]
+        claim_idx = int(state.get("claim_idx", 0))
+
+        # 已领取任务会自动沉底，后续可领奖任务会依次顶到第一行。
+        # 固定点击第一行领取按钮即可领取全部四项奖励。
+        if claim_idx < 4:
+            state["claim_idx"] = claim_idx + 1
             return {
-                "intent": f"巅峰赛: 发现 {len(claim_targets)} 个未领取奖励，点击其中一个进行领取",
+                "intent": f"巅峰赛: 固定坐标领取第 {claim_idx + 1}/4 个每日任务奖励",
                 "action": "tap",
-                "target": {"x": int(target_pt["x"]), "y": int(target_pt["y"])},
+                "target": {"x": 1041, "y": 186},
                 "confidence": 0.95,
                 "risk": "low"
             }
-        
-        # 2.8.3 如果没有检测到任何“领取”按钮，优先进行 2.5 秒缓冲等待弹窗渲染
-        if not state.get("claim_wait_done", False):
-            state["claim_wait_done"] = True
-            return {
-                "intent": "巅峰赛: 刚进入每日任务或未加载出奖励，原地缓冲等待 2.5 秒确保弹窗渲染完毕",
-                "action": "wait",
-                "target": {"seconds": 2.5},
-                "confidence": 0.9,
-                "risk": "low"
-            }
-        
-        # 2.8.4 已经进行过缓冲等待，且确认无“领取”按钮，代表奖励已全部领完，点击右上角大红叉 (1134, 92) 退出
+
+        # 四次固定领奖完成后，点击右上角大红叉退出。
         state["completed"] = True
         return {
-            "intent": "巅峰赛: 每日任务奖励均已领取完毕，点击右上角大红叉返回排位主页",
+            "intent": "巅峰赛: 四个每日任务奖励已依次领取，点击右上角大红叉返回排位主页",
             "action": "tap",
             "target": {"x": 1134, "y": 92},
             "confidence": 0.9,
