@@ -261,6 +261,18 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
         # 屏蔽控制台刷请求日志，保持界面干净
         pass
 
+    # 添加 CORS 头部（通配符）
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        super().end_headers()
+
+    # 处理预检请求
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.end_headers()
+
     def do_GET(self):
         global LATEST_SCREENSHOT_PATH
         parsed_path = urllib.parse.urlparse(self.path)
