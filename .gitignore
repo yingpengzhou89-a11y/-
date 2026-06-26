@@ -9,6 +9,8 @@ task_runs/
 temp_screenshots/
 screenshots/
 config_runtime_*.json
+config.local.json
+.venv/
 
 # VS Code history or other IDE settings
 .vscode/

@@ -35,12 +35,16 @@ daily_task/
 ├── dashboard.html         # 前端精美控制面板（支持多设备 Tab 页、实时日志、画布投影）
 ├── config.json            # 运行全局配置文件（包含所有坐标与限值参数）
 ├── peak_arena_run.py      # 巅峰赛独立命令行执行入口脚本
-├── run_dashboard.bat      # 【推荐】一键清理并启动 Web 仪表盘控制面板
-├── run_dj.bat             # 一键启动命令行模式（日常大循环）
+├── install.bat            # 首次部署：创建 .venv 并安装依赖
+├── check_env.py           # 环境自检：Python / 依赖 / ADB / 设备 / 端口
+├── DEPLOY.md              # 他人电脑部署说明与常见问题
+├── run_dashboard.bat      # 【推荐】自检并启动 Web 仪表盘控制面板
 └── daily_tasks.py         # 命令行模式日常托管执行入口
 ```
 
 ### 前置准备与使用说明
+
+如果要部署到他人电脑，优先阅读 [DEPLOY.md](DEPLOY.md)，按 `install.bat` → 启动模拟器 → `run_dashboard.bat` 的顺序操作。
 
 为了确保托管程序能够顺利跑完全程，请在启动托管前在游戏内及控制面板做好以下前置准备：
 
@@ -54,35 +58,26 @@ daily_task/
 若您是第一次在电脑上部署并运行本项目，请按以下步骤完成初始化配置：
 
 1. **安装环境依赖**：
-   - 确保本地已安装 Python 3.10+ 环境（推荐使用 Miniconda/Anaconda 管理）；
-   - 在项目根目录下打开终端，执行以下命令安装运行所需的第三方库：
-     ```powershell
-     pip install -r requirements.txt
-     ```
+   - 确保本地已安装 Python 3.9+；
+   - 双击 `install.bat`，脚本会创建 `.venv` 并通过清华镜像源安装 `requirements.txt`。
 2. **配置安卓模拟器**：
    - 推荐下载并使用 **MuMu 模拟器12**；
    - 必须把模拟器的分辨率设置为 **`1280 x 720`** (DPI 设为 240)；
    - 在模拟器设置中开启 **ADB 调试**。
-3. **修改配置文件 (config.json)**：
-   - 用文本编辑器打开根目录下的 `config.json`；
-   - 将首行的 `"adb_path"` 修改为您本地模拟器 `adb.exe` 的真实绝对路径（Windows 系统下请使用双反斜杠进行路径转义）；
-   - 默认的主设备端口 `"device_id"` 设为 `127.0.0.1:7555`。若端口不同，可直接通过网页控制台扫描检测。
+3. **配置 ADB 路径**：
+   - `install.bat` 会提示输入 MuMu 模拟器目录，例如 `C:\Netease\MuMu\nx_main`；
+   - 脚本会自动把 `config.json` 中的 `"adb_path"` 更新为该目录下的 `adb.exe`；
+   - 默认设备端口 `"device_id"` 为 `127.0.0.1:7555`。若端口不同，可直接通过网页控制台扫描检测。
 4. **启动游戏**：
    - 在模拟器内启动游戏，登录好并保持在游戏主城（或任意正常游戏页面）。
 
 ### 运行方式
 
 #### 1. 运行 Web 仪表盘（推荐）
-双击运行项目根目录下的 **`run_dashboard.bat`**。它将自动强杀冲突进程，加载最新代码，并在浏览器中自动打开控制面板：
+双击运行项目根目录下的 **`run_dashboard.bat`**。它会先执行环境自检，再启动控制面板：
 `http://localhost:7556`
 
-#### 2. 命令行独立运行（日常大循环）
-运行一键批处理文件：
-```powershell
-./run_dj.bat
-```
-
-#### 3. 命令行独立运行（巅峰竞技场）
+#### 2. 命令行独立运行（巅峰竞技场）
 如果您需要直接通过命令行拉起独立的巅峰赛自动化流程，可激活 conda 环境后直接执行：
 ```powershell
 python peak_arena_run.py
@@ -121,8 +116,10 @@ daily_task/
 ├── dashboard.html         # Responsive GUI (multi-device tabs, live logs, canvas projection)
 ├── config.json            # JSON configs for coordinates, offsets, and thresholds
 ├── peak_arena_run.py      # Independent Peak Arena CLI runner
-├── run_dashboard.bat      # [Recommended] One-click script to kill duplicate services and start dashboard
-├── run_dj.bat             # Start daily loop in CLI mode
+├── install.bat            # First-time setup: create .venv and install dependencies
+├── check_env.py           # Environment checker: Python / deps / ADB / device / port
+├── DEPLOY.md              # Deployment guide for other PCs
+├── run_dashboard.bat      # [Recommended] Check environment and start dashboard
 └── daily_tasks.py         # Daily loop CLI entrypoint
 ```
 
@@ -140,35 +137,26 @@ To ensure the automation script runs smoothly without safety interrupts, please 
 If you are running this project for the first time, please follow the steps below:
 
 1. **Install Dependencies**:
-   - Ensure Python 3.10+ is installed on your local environment (Miniconda/Anaconda is highly recommended).
-   - Install required packages by running:
-     ```powershell
-     pip install -r requirements.txt
-     ```
+   - Ensure Python 3.9+ is installed.
+   - Double-click `install.bat`; it creates `.venv` and installs `requirements.txt` via the Tsinghua PyPI mirror.
 2. **Configure Emulator**:
    - We recommend downloading and installing **MuMu Player 12**.
    - Make sure to set the emulator resolution to exactly **`1280 x 720`** (DPI 240).
    - Enable **ADB debugging** in your emulator's settings.
-3. **Update config.json**:
-   - Open `config.json` in the root directory.
-   - Change the first line `"adb_path"` to the actual absolute path of your emulator's `adb.exe` (use double backslashes in Windows to escape).
-   - Set the default `"device_id"` to `127.0.0.1:7555`. If you run other emulators, you can search and bind emulator ports dynamically via the Web Dashboard.
+3. **Configure ADB path**:
+   - `install.bat` asks for the MuMu emulator directory, for example `C:\Netease\MuMu\nx_main`.
+   - It updates `"adb_path"` in `config.json` automatically.
+   - The default `"device_id"` is `127.0.0.1:7555`. If you run other emulators, scan and bind ports from the Web Dashboard.
 4. **Start the Game**:
    - Launch your game in the emulator, log in, and stay on the main city interface (or any playable page).
 
 ### Get Started
 
 #### 1. Launch Web Dashboard (Recommended)
-Double-click **`run_dashboard.bat`** in the root directory. It will clean up ports conflict, load the latest code, and launch:
+Double-click **`run_dashboard.bat`** in the root directory. It checks the environment and starts:
 `http://localhost:7556`
 
-#### 2. CLI Execution (Daily Tasks Loop)
-Run the batch file in PowerShell or Command Prompt:
-```powershell
-./run_dj.bat
-```
-
-#### 3. CLI Execution (Peak Arena)
+#### 2. CLI Execution (Peak Arena)
 If you wish to execute the Peak Arena challenge automation task directly from Command Line:
 ```powershell
 python peak_arena_run.py

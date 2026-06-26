@@ -1,9 +1,12 @@
 import json
 import os
 import re
+import shutil
+from copy import deepcopy
 from dataclasses import dataclass
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOCAL_CONFIG_NAME = "config.local.json"
 _RAPIDOCR_ENGINE = None
 
 DEFAULT_CONFIG = {
@@ -35,12 +38,72 @@ def load_json(path, default=None):
         return json.load(f)
 
 
+def deep_update(base, updates):
+    for key, value in (updates or {}).items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            deep_update(base[key], value)
+        else:
+            base[key] = value
+    return base
+
+
+def find_adb_path(configured_path=None):
+    candidates = []
+
+    env_path = os.environ.get("ADB_PATH")
+    if env_path:
+        candidates.append(env_path)
+
+    if configured_path:
+        candidates.append(configured_path)
+
+    path_adb = shutil.which("adb")
+    if path_adb:
+        candidates.append(path_adb)
+
+    candidates.extend(
+        [
+            r"C:\Netease\MuMu\nx_main\adb.exe",
+            r"C:\Program Files\Netease\MuMuPlayerGlobal-12.0\shell\adb.exe",
+            r"C:\Program Files\Netease\MuMuPlayer-12.0\shell\adb.exe",
+            r"C:\Program Files\BlueStacks_nxt\HD-Adb.exe",
+            r"C:\Program Files\BlueStacks\HD-Adb.exe",
+            r"C:\Program Files\Microvirt\MEmu\adb.exe",
+            r"C:\LDPlayer\LDPlayer9\adb.exe",
+            r"C:\Program Files\dnplayerext2\adb.exe",
+        ]
+    )
+
+    seen = set()
+    for candidate in candidates:
+        if not candidate:
+            continue
+        normalized = os.path.abspath(os.path.expandvars(os.path.expanduser(candidate)))
+        if normalized.lower() in seen:
+            continue
+        seen.add(normalized.lower())
+        if os.path.exists(normalized):
+            return normalized
+
+    return configured_path or "adb"
+
+
 def load_app_config(path=None):
-    config = dict(DEFAULT_CONFIG)
-    file_config = load_json(path or os.path.join(BASE_DIR, "config.json"), {})
+    config = deepcopy(DEFAULT_CONFIG)
+    config_path = path or os.path.join(BASE_DIR, "config.json")
+    file_config = load_json(config_path, {})
 
     if file_config:
-        config.update(file_config)
+        deep_update(config, file_config)
+
+    # config.local.json is for per-machine deployment overrides. It is ignored
+    # by git and should contain local adb_path/device_id changes.
+    if path is None or os.path.abspath(config_path) == os.path.abspath(os.path.join(BASE_DIR, "config.json")):
+        local_config = load_json(os.path.join(BASE_DIR, LOCAL_CONFIG_NAME), {})
+        if local_config:
+            deep_update(config, local_config)
+
+    config["adb_path"] = find_adb_path(config.get("adb_path"))
 
     return config
 

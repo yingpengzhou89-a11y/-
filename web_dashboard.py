@@ -7,10 +7,12 @@ import webbrowser
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from ocr_utils import BASE_DIR, load_app_config
+from ocr_utils import BASE_DIR, deep_update, load_app_config
 from adb_client import capture_screenshot
 from task_runner import GuardrailError, TaskRunner, RunLogger
 TEMP_SCREENSHOT_DIR = os.path.join(BASE_DIR, "temp_screenshots")
+LOCAL_CONFIG_PATH = os.path.join(BASE_DIR, "config.local.json")
+RUNTIME_CONFIG_PATH = os.path.join(BASE_DIR, "config_runtime_7555.json")
 
 # 全局多设备状态管理
 RUNNER_STATES = {}
@@ -100,23 +102,36 @@ def custom_capture(self, step):
 
 TaskRunner.capture = custom_capture
 
+def read_local_config():
+    if not os.path.exists(LOCAL_CONFIG_PATH):
+        return {}
+    with open(LOCAL_CONFIG_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_local_config_patch(patch):
+    config = read_local_config()
+    deep_update(config, patch)
+    with open(LOCAL_CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(config, f, indent=4, ensure_ascii=False)
+
+
 def load_dashboard_config(device_id=None):
     """读取主配置文件 config.json 并合并运行时覆盖，且强制关联当前设备实例"""
-    config = load_app_config(os.path.join(BASE_DIR, "config.json"))
-    if device_id:
-        config["device_id"] = device_id
-        
-    runtime_path = os.path.join(BASE_DIR, "config_runtime_7555.json")
-    if os.path.exists(runtime_path):
+    config = load_app_config()
+
+    if os.path.exists(RUNTIME_CONFIG_PATH):
         try:
-            with open(runtime_path, "r", encoding="utf-8") as f:
+            with open(RUNTIME_CONFIG_PATH, "r", encoding="utf-8") as f:
                 runtime_config = json.load(f)
-                config.update(runtime_config)
-                # 再次强保传入的 device_id 优先
-                if device_id:
-                    config["device_id"] = device_id
+                deep_update(config, runtime_config)
         except Exception as exc:
             print(f"合并 runtime 配置失败: {exc}")
+
+    # 传入的 device_id 始终优先，避免多设备页面被本机配置覆盖。
+    if device_id:
+        config["device_id"] = device_id
+
     return config
 
 def capture_idle_screenshot(device_id):
@@ -312,13 +327,11 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
             
         elif parsed_path.path == "/api/device":
             try:
-                config_path = os.path.join(BASE_DIR, "config.json")
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
+                config = load_dashboard_config(None)
                 current_device = config.get("device_id", "127.0.0.1:7555")
                 
                 import subprocess
-                adb_path = config.get("adb_path", r"C:\Netease\MuMu\nx_main\adb.exe")
+                adb_path = config.get("adb_path")
                 devices = []
                 res = subprocess.run([adb_path, "devices"], capture_output=True, text=True, check=False)
                 lines = res.stdout.splitlines()
@@ -343,9 +356,7 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 
         elif parsed_path.path == "/api/config":
             try:
-                config_path = os.path.join(BASE_DIR, "config.json")
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
+                config = load_dashboard_config(None)
                 
                 res_data = {
                     "max_free_challenges": config.get("arena", {}).get("max_free_challenges", 5),
@@ -508,9 +519,7 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 params = {}
                 
             try:
-                config_path = os.path.join(BASE_DIR, "config.json")
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
+                config = load_dashboard_config(None)
 
                 if "arena" not in config:
                     config["arena"] = {}
@@ -528,8 +537,22 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                     config["shop_refresh"] = {}
                 config["shop_refresh"]["max_refresh_actions"] = int(params.get("max_refresh_actions", 2))
 
-                with open(config_path, "w", encoding="utf-8") as f:
-                    json.dump(config, f, indent=4, ensure_ascii=False)
+                save_local_config_patch(
+                    {
+                        "arena": {
+                            "max_free_challenges": config["arena"]["max_free_challenges"]
+                        },
+                        "recruitment": {
+                            "max_recruit_actions": config["recruitment"]["max_recruit_actions"]
+                        },
+                        "warehouse": {
+                            "max_collect_actions": config["warehouse"]["max_collect_actions"]
+                        },
+                        "shop_refresh": {
+                            "max_refresh_actions": config["shop_refresh"]["max_refresh_actions"]
+                        },
+                    }
+                )
 
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
@@ -558,18 +581,14 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 return
                 
             try:
-                config_path = os.path.join(BASE_DIR, "config.json")
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
+                config = load_dashboard_config(None)
                 
                 import subprocess
-                adb_path = config.get("adb_path", r"C:\Netease\MuMu\nx_main\adb.exe")
+                adb_path = config.get("adb_path")
                 if ":" in new_device:
                     subprocess.run([adb_path, "connect", new_device], capture_output=True, text=True, check=False)
                 
-                config["device_id"] = new_device
-                with open(config_path, "w", encoding="utf-8") as f:
-                    json.dump(config, f, indent=4, ensure_ascii=False)
+                save_local_config_patch({"device_id": new_device})
                 
                 # connect 完或切换设备后重新获取截图
                 capture_idle_screenshot(new_device)
@@ -586,11 +605,9 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 
         elif parsed_path.path == "/api/device/scan":
             try:
-                config_path = os.path.join(BASE_DIR, "config.json")
-                with open(config_path, "r", encoding="utf-8") as f:
-                    config = json.load(f)
+                config = load_dashboard_config(None)
                 
-                adb_path = config.get("adb_path", r"C:\Netease\MuMu\nx_main\adb.exe")
+                adb_path = config.get("adb_path")
                 current_device = config.get("device_id", "127.0.0.1:7555")
                 
                 # 常见模拟器端口列表（扩充 MuMu12 多开至 7 个实例）
@@ -631,9 +648,7 @@ class DashboardHTTPRequestHandler(BaseHTTPRequestHandler):
                 if devices:
                     if current_device not in devices:
                         new_binding = devices[0]
-                        config["device_id"] = new_binding
-                        with open(config_path, "w", encoding="utf-8") as f:
-                            json.dump(config, f, indent=4, ensure_ascii=False)
+                        save_local_config_patch({"device_id": new_binding})
                         capture_idle_screenshot(new_binding)
                     else:
                         capture_idle_screenshot(new_binding)
@@ -672,7 +687,7 @@ def start_server(port=7556):
         print("正在后台扫描在线设备并预抓取首张截图...")
         try:
             config = load_dashboard_config(None)
-            adb_path = config.get("adb_path", r"C:\Netease\MuMu\nx_main\adb.exe")
+            adb_path = config.get("adb_path")
             import subprocess
             res = subprocess.run([adb_path, "devices"], capture_output=True, text=True, check=False)
             lines = res.stdout.splitlines()
