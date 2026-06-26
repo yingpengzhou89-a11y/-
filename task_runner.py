@@ -680,12 +680,24 @@ class TaskRunner:
         if text_contains_any(page_text, ["购买次数"]) and text_contains_any(page_text, ["总价", "拥有"]) and text_contains_any(page_text, ["确认", "取消"]):
             return "peak_arena_buy"
 
+        # 友情点页面强特征需早于巅峰赛布阵判断。
+        # 好友列表里可能同时出现“角色雇佣 / 挑战之王 / 战斗力”等文本，
+        # 会撞上巅峰赛布阵的宽松“挑战”特征，导致友情点任务反复退回主界面。
+        if (
+            text_contains_any(page_text, ["每日赠送上限"])
+            or (
+                text_contains_any(page_text, ["好友列表"])
+                and text_contains_any(page_text, ["领取赠送", "领取和赠送"])
+            )
+        ):
+            return "friendship"
+
         # 巅峰赛排位主页
         if text_contains_any(page_text, ["开始匹配", "匹配次数", "匹配记录"]) and text_contains_any(page_text, ["匹配", "任务", "次数"]):
             return "peak_arena_rank"
 
         # 巅峰赛布阵界面
-        if text_contains_any(page_text, ["VS", "一键布阵"]) or (text_contains_any(page_text, ["挑战"]) and not text_contains_any(page_text, ["开始匹配", "赛季奖励", "奖励商店", "日常商店"])):
+        if text_contains_any(page_text, ["VS", "一键布阵"]) or (text_contains_any(page_text, ["挑战"]) and not text_contains_any(page_text, ["开始匹配", "赛季奖励", "奖励商店", "日常商店", "每日赠送上限", "好友列表", "领取赠送"])):
             return "peak_arena_formation"
 
         # 巅峰赛战斗进行中
