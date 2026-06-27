@@ -1,10 +1,11 @@
 # CHANGELOG
 
-## [Unreleased] - 2026-06-28 02:20:00 (CST)
+## [Unreleased] - 2026-06-28 02:32:00 (CST)
 
 ### Fixed
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L475-476 -> L475-485 (`+9 -0`) (Whitelisted safety exit/close/back/wait intents from the forbidden keyword check to prevent false positive guardrail blocks)
 - `c:/Users/work/Desktop/daily_task/task_runner.py` L675 -> L675-675 (`+1 -1`) (Added lobby exclusions to arena challenge list classification to prevent misclassifying lobby as challenge list on /50 keyword match)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L709 -> L709 (`+1 -1`) (Added lobby exclusions to peak_arena_formation classification to prevent lobby misclassification when player has '挑战大师' title)
 
 ### Added
 - `c:/Users/work/Desktop/daily_task/web_dashboard.py` L259 -> L259-272 (`+13 -0`) (Added CORS headers and OPTIONS handler to dashboard BaseHTTPRequestHandler to allow cross-origin API calls)

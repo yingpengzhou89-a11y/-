@@ -706,7 +706,7 @@ class TaskRunner:
             return "peak_arena_rank"
 
         # 巅峰赛布阵界面
-        if text_contains_any(page_text, ["VS", "一键布阵"]) or (text_contains_any(page_text, ["挑战"]) and not text_contains_any(page_text, ["开始匹配", "赛季奖励", "奖励商店", "日常商店", "每日赠送上限", "好友列表", "领取赠送"])):
+        if text_contains_any(page_text, ["VS", "一键布阵"]) or (text_contains_any(page_text, ["挑战"]) and not text_contains_any(page_text, ["开始匹配", "赛季奖励", "奖励商店", "日常商店", "每日赠送上限", "好友列表", "领取赠送", "冒险", "战令", "图鉴", "背包", "角色", "商店"])):
             return "peak_arena_formation"
 
         # 巅峰赛战斗进行中
