@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [Unreleased] - 2026-06-28 02:20:00 (CST)
+
+### Fixed
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L475-476 -> L475-485 (`+9 -0`) (Whitelisted safety exit/close/back/wait intents from the forbidden keyword check to prevent false positive guardrail blocks)
+- `c:/Users/work/Desktop/daily_task/task_runner.py` L675 -> L675-675 (`+1 -1`) (Added lobby exclusions to arena challenge list classification to prevent misclassifying lobby as challenge list on /50 keyword match)
+
+### Added
+- `c:/Users/work/Desktop/daily_task/web_dashboard.py` L259 -> L259-272 (`+13 -0`) (Added CORS headers and OPTIONS handler to dashboard BaseHTTPRequestHandler to allow cross-origin API calls)
+
 ## [Unreleased] - 2026-06-24 17:28:00 (CST)
 
 ### Changed

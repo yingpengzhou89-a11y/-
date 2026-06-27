@@ -475,6 +475,15 @@ class TaskRunner:
         ):
             skip_forbidden_text = True
 
+        # 统一豁免所有性质为关闭、返回、取消、退出、等待、停机等安全防消耗退回动作的禁用词检测
+        intent_lower = decision["intent"].lower()
+        if (
+            action in {"wait", "stop"}
+            or any(k in intent_lower for k in ["关闭", "返回", "退回", "取消", "退出", "大红叉", "小房子", "等待", "停机", "停止"])
+        ):
+            skip_forbidden_text = True
+
+
         if (
             not skip_forbidden_text
             and text_contains_any(observation.get("page_text") or "", self.guardrails["forbidden_keywords"])
@@ -663,7 +672,7 @@ class TaskRunner:
             return "arena_formation"
 
         # 6. 竞技场今日挑战列表页
-        list_exclude = ["战斗胜利", "战斗失败", "DEFEAT", "WIN", "VS", "一键布阵"]
+        list_exclude = ["战斗胜利", "战斗失败", "DEFEAT", "WIN", "VS", "一键布阵", "喰祖", "冒险", "战令", "背包", "图鉴", "角色"]
         list_keywords = arena_config.get("challenge_list_keywords") or ["挑战列表", "今日次数", "自动战斗"]
         if "/50" in page_text or text_contains_any(page_text, list_keywords):
             if not text_contains_any(page_text, list_exclude):
